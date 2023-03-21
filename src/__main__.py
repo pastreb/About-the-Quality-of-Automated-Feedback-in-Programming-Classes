@@ -15,7 +15,6 @@ if __name__ == '__main__':
             print("Failed to delete directory\n", error)
             exit()
     os.mkdir(target_directory)
-    os.chmod(target_directory, stat.S_IRWXO)
     for source_project in os.listdir(source_directory):
         source_project_directory = os.path.join(source_directory, source_project)
         target_project_directory = os.path.join(target_directory, source_project)
