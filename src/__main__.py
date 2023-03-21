@@ -2,9 +2,9 @@ from extract import *
 import stat
 
 if __name__ == '__main__':
-    # os.system("color") only needed on Windows?
-    source_directory = os.path.join(os.path.dirname(__file__), "../raw_data")
-    target_directory = os.path.join(os.path.dirname(__file__), "../processed_data")
+    if os.name == 'nt': os.system("color") # if on Windows we need to activate colored print
+    source_directory = os.path.join(os.path.dirname(__file__), "..", "raw_data")
+    target_directory = os.path.join(os.path.dirname(__file__), "..", "processed_data")
     if(os.path.exists(target_directory)):
         print(colored("There is already something at " + target_directory, "yellow"))
         if(input("Delete? (Y/N)") not in ["Yes", "Y", "y", "ye"]):
