@@ -13,7 +13,7 @@ student_code_to_gibberish = {} # maintains a unique random string for each stude
 # On each subsequent encounter of the same student code, the corresponding gibberish is simply returned.
 def get_gibberish_string_for_student(student_code, len=6):
     if student_code not in student_code_to_gibberish.keys():
-        gibberish = ''.join(random.choice(string.ascii_letters) for _ in range(len))
+        gibberish = ''.join(random.choice(string.ascii_lowercase) for _ in range(len))
         while(gibberish in student_code_to_gibberish.values()):
             gibberish = ''.join(random.choice(string.ascii_letters) for _ in range(len))
         student_code_to_gibberish[student_code] = gibberish
@@ -30,13 +30,13 @@ def extract_project(source_directory, target_directory):
             for file in files:
                 if file == "main.py":
                     src = os.path.join(source_directory, root, file)
-                    dest = os.path.join(target_directory, student_code + "_main.py")
+                    dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_main.py") # anonymize
                     # print("Moving", src, "to", dest) # uncomment for verbose output
                     shutil.copy(src, dest) # copy and rename main.py
             for dir in dirs:
                 if dir == "cx_audit":
                     src = os.path.join(source_directory, root, dir, "testcases.csv")
-                    dest = os.path.join(target_directory, student_code + "_testcases.csv")
+                    dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_testcases.csv") # anonymize
                     # print("Moving", src, "to", dest) # uncomment for verbose output
                     shutil.copy(src, dest) # copy and rename testcases.csv
                     n_audits += 1 # count number of present audit files (we can later generate the missing ones)
@@ -63,9 +63,9 @@ def extract_presentation_grades_from_scoreboard(project_directory, path_to_score
             else:
                 grade = re.findall("1|0\.5|0", row[row_index]) # find grade
                 if(len(grade) > 0):
-                    student_grades_for_modul[row[name_index]] = float(grade[0])
+                    student_grades_for_modul[get_gibberish_string_for_student(row[name_index])] = float(grade[0]) # anonymize
                 else:
-                    student_grades_for_modul[row[name_index]] = -1 # encode everything non-graded as -1.0
+                    student_grades_for_modul[get_gibberish_string_for_student(row[name_index])] = -1 # encode everything non-graded as -1.0
     return student_grades_for_modul
 
 def get_n_test_cases(test_results_csv):
@@ -121,8 +121,8 @@ def collect_student_data_from_project(project_directory, student_grades):
                             print(colored("Unknown test result " + str(row), "yellow"))
     return results
 
-def write_to_csv(results):
-    with open(os.path.join(folder, "results.csv"), mode='a') as output_file: # write test results to csv
-        writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
-        for key in results:
-            writer.writerow([os.path.basename(subfolder), key, results[key]])
+# def write_to_csv(results):
+#     with open(os.path.join(folder, "results.csv"), mode='a') as output_file: # write test results to csv
+#         writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+#         for key in results:
+#             writer.writerow([os.path.basename(subfolder), key, results[key]])
