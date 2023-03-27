@@ -1,5 +1,5 @@
-raw_data/*
-processed_data/*
+data/raw_student_data/*
+data/processed_student_data/*
 
 src/test_runner/*
 
