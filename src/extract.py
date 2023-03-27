@@ -8,8 +8,9 @@ from termcolor import colored # for printing funny colored text
 
 student_code_to_gibberish = {} # maintains a unique random string for each student code
 
-# Given a student code anonimizes it. 
-# When the code is encountered for the first time, a new random gibberish string of size len is generated for it and persisted in student_code_to_gibberish. 
+# Given a student code (aka ETH-Kuerzel) anonimizes it. 
+# When the code is encountered for the first time, a new random gibberish string of size len is generated for it 
+# and persisted in student_code_to_gibberish. 
 # On each subsequent encounter of the same student code, the corresponding gibberish is simply returned.
 def get_gibberish_string_for_student(student_code, len=6):
     if student_code not in student_code_to_gibberish.keys():
@@ -19,34 +20,38 @@ def get_gibberish_string_for_student(student_code, len=6):
         student_code_to_gibberish[student_code] = gibberish
     return student_code_to_gibberish[student_code]
 
-# Given a [code]Expert project source directory extracts/renames the relevant files (testcases.csv from cx_audit and main.py) to the target directory
+# Given a [code]Expert project source directory extracts and anonimizes the relevant files (testcases.csv from cx_audit and main.py) to the target directory.
 def extract_project(source_directory, target_directory):
     n_students = 0
-    n_audits = 0
-    for root, dirs, files in os.walk(source_directory): # recursively traverse the source directory
+    n_existing_audit_files = 0
+    for root, _, _ in os.walk(source_directory): # recursively traverse the source directory
         if os.path.basename(root) == "project": # the folders we are interested in are called "project"
-            student_code = re.findall("[^/]+", re.findall("/[^/]+/submission", root.replace("\\", "/"))[0])[0] # extract student code (aka ETH-Kuerzel) from path
-            n_students += 1 # count students so we know how many files to expect
-            for file in files:
-                if file == "main.py":
-                    src = os.path.join(source_directory, root, file)
-                    dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_main.py") # anonymize
-                    # print("Moving", src, "to", dest) # uncomment for verbose output
-                    shutil.copy(src, dest) # copy and rename main.py
-            for dir in dirs:
-                if dir == "cx_audit":
-                    src = os.path.join(source_directory, root, dir, "testcases.csv")
-                    dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_testcases.csv") # anonymize
-                    # print("Moving", src, "to", dest) # uncomment for verbose output
-                    shutil.copy(src, dest) # copy and rename testcases.csv
-                    n_audits += 1 # count number of present audit files (we can later generate the missing ones)
+            n_students += 1
+            root = root.replace("\\", "/") # prepare root for regex action
+            student_code = re.findall("[^/]+", re.findall("(?:/[^/]+/submission|/[^/]+/regrade)", root)[0])[0] # extract student code (aka ETH-Kuerzel) from path
+            # If you want to have an 'or' match without having the split into match groups just add a '?:' to the beginning of the 'or' match.
+            # https://stackoverflow.com/questions/24593824/why-does-re-findall-return-a-list-of-tuples-when-my-pattern-only-contains-one-gr
+            if len(student_code) == 0: # no match
+                print(colored("Could not find student code in " + root, "red"))
+            # Find and move main file:
+            src = os.path.join(source_directory, root, "main.py")
+            dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_main.py") # anonymize
+            # print("Moving", src, "to", dest) # uncomment for verbose output
+            shutil.copy(src, dest) # copy and rename main.py
+            # Find and move audit file:
+            src = os.path.join(source_directory, root, "cx_audit", "testcases.csv")
+            if os.path.isfile(src): # audit file exists
+                n_existing_audit_files += 1
+                dest = os.path.join(target_directory, get_gibberish_string_for_student(student_code) + "_testcases.csv") # anonymize
+                # print("Moving", src, "to", dest) # uncomment for verbose output
+                shutil.copy(src, dest) # copy and rename testcases.csv
     print("Successfully moved and renamed files from", n_students, "students", end=' ')
-    if n_students == n_audits: # print info on number of found audit files
-        print(colored(str(n_audits) + "/" + str(n_students) + " audit files", "green"))
-    elif n_audits >= n_students/2:
-        print(colored(str(n_audits) + "/" + str(n_students) + " audit files", "yellow"))
+    if n_students == n_existing_audit_files: # print info on number of found audit files
+        print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "green"))
+    elif n_existing_audit_files >= n_students/2:
+        print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "yellow"))
     else:
-        print(colored(str(n_audits) + "/" + str(n_students) + " audit files", "red"))
+        print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "red"))
 
 # Given a [code]Expert project and a path to a scoreboard file containing the grades of students extracts (and returns) 
 # the grades of the students for the module presentation belonging to the project
@@ -96,11 +101,13 @@ def collect_student_data_from_project(project_directory, student_grades):
                         results["Test_" + str(i+1) + "_FALSE_NEGATIVE"] = 0
                 student_name = re.findall(".+\_", file)[0][0:-1] # extract student code from file name
                 if(student_name not in student_grades):
-                    print(colored("Could not find grade of student " + student_name, "yellow"))
+                    print(colored("Could not find grade of student " + student_name + ", so I will skip this student", "yellow"))
                     continue
                 src = os.path.join(project_directory, file)
                 with open(src, mode='r') as test_results: # read content from csv
+                    n_rows = 0
                     for row in csv.reader(test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL):
+                        n_rows += 1
                         if(row[1].__contains__("success")):
                             results[row[0].replace(" ", "_") + "_SUCCESS"] += 1
                             if(student_grades[student_name] == 1.0):
@@ -119,6 +126,14 @@ def collect_student_data_from_project(project_directory, student_grades):
                             results[row[0].replace(" ", "_") + "_SKIP"] += 1
                         else:
                             print(colored("Unknown test result " + str(row), "yellow"))
+                    if(n_rows == 0):
+                        print(colored("No entries in " + src, "yellow"))
+                        n_test_cases = len(results) // 8
+                        if(n_test_cases == 0):
+                            print(colored("Couldn't capture the results as SKIP either, as I don't know (yet) how many test cases this project has", "red"))
+                        else:
+                            for i in range(n_test_cases):
+                                results["Test_" + str(i+1) + "_SKIP"] += 1
     return results
 
 # def write_to_csv(results):
