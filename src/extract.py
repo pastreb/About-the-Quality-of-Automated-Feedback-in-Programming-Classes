@@ -1,5 +1,7 @@
-import csv 
+import csv
+import matplotlib.pyplot as plt
 import os
+import pandas as pd
 import random
 import re # regex
 import shutil # moving files through directories
@@ -54,7 +56,7 @@ def extract_project(source_directory, target_directory):
         print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "red"))
 
 # Given a [code]Expert project and a path to a scoreboard file containing the grades of students extracts (and returns) 
-# the grades of the students for the module presentation belonging to the project
+# the grades of the students for the module presentation belonging to the project.
 def extract_presentation_grades_from_scoreboard(project_directory, path_to_scoreboard_file):
     modul_nummer = re.findall("M_\d", project_directory)[0][2] # find out what module the project belongs to
     student_grades_for_modul = {}
@@ -81,7 +83,7 @@ def get_n_test_cases(test_results_csv):
     return row_count
 
 # Given a cleaned-up [code]Expert project and the grades of students for the module presentation belonging to the project 
-# extracts the info from audit-files
+# extracts the info from audit-files and writes them to a csv.
 def collect_student_data_from_project(project_directory, student_grades):
     results = {} # collect test results
     for _, _, files in os.walk(project_directory): # traverse files in project directory
@@ -134,10 +136,37 @@ def collect_student_data_from_project(project_directory, student_grades):
                         else:
                             for i in range(n_test_cases):
                                 results["Test_" + str(i+1) + "_SKIP"] += 1
+    # Write test results to csv:
+    with open(os.path.join(project_directory, "results.csv"), mode='a') as output_file:
+        writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
+        for key in results:
+            writer.writerow([os.path.basename(project_directory), key, results[key]])
+    # Generate Plot:
+    project_test_cases_data = []
+    for i in range(len(results) // 8):
+        project_test_cases_data.append(["Test " + str(i+1),
+                                        results["Test_" + str(i+1) + "_TRUE_POSITIVE"], 
+                                        results["Test_" + str(i+1) + "_FALSE_POSITIVE"],
+                                        results["Test_" + str(i+1) + "_TRUE_NEGATIVE"],
+                                        results["Test_" + str(i+1) + "_FALSE_NEGATIVE"]])
+    make_bar_plot_for_single_project(os.path.basename(project_directory), project_test_cases_data)
     return results
 
-# def write_to_csv(results):
-#     with open(os.path.join(folder, "results.csv"), mode='a') as output_file: # write test results to csv
-#         writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
-#         for key in results:
-#             writer.writerow([os.path.basename(subfolder), key, results[key]])
+def make_bar_plot_for_single_project(project_title, project_test_cases_data):
+    plotdata = pd.DataFrame({
+        "True Positives": [test[1] for test in project_test_cases_data],
+        "False Positives": [test[2] for test in project_test_cases_data],
+        "True Negatives": [test[3] for test in project_test_cases_data],
+        "False Negatives": [test[4] for test in project_test_cases_data]
+    }, index=[test[0] for test in project_test_cases_data])
+    green = (0.173, 0.627, 0.173)
+    red = (0.839, 0.153, 0.157)
+    blue = (0.122, 0.467, 0.706)
+    orange = (1.000, 0.498, 0.055)
+    my_colors = [green, red, blue, orange]
+    print(plotdata)
+    plotdata.plot(kind="bar", figsize=(15, 8), color=my_colors)
+    plt.title(project_title)
+    plt.xlabel("Test-Cases")
+    plt.ylabel("# students")
+    plt.show()
