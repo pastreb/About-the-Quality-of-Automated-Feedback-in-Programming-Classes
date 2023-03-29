@@ -17,7 +17,11 @@ if __name__ == '__main__':
     for source_project in os.listdir(source_directory):
         source_project_directory = os.path.join(source_directory, source_project)
         target_project_directory = os.path.join(target_directory, source_project)
-        if os.path.isdir(source_project_directory): #and source_project == "GDI_2021_M_2_A_2_Pin_Code":
+        # DONE:
+        # APro_2021_M_1A_A_1_Temperaturberechnung
+        # APro_2021_M_1A_A_2_Zeichenketten_und_Variablentausch
+        # APro_2021_M_1A_A_3_Kreisberechnung
+        if os.path.isdir(source_project_directory) and source_project == "APro_2021_M_1A_A_1_Temperaturberechnung":
             print("Processing", source_project)
             os.mkdir(target_project_directory)
             extract_project(source_project_directory, target_project_directory)
