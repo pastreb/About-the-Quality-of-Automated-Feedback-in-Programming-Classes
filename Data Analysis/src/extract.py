@@ -22,7 +22,7 @@ def get_gibberish_string_for_student(student_code, len=6):
         student_code_to_gibberish[student_code] = gibberish
     return student_code_to_gibberish[student_code]
 
-# Given a [code]Expert project source directory extracts and anonimizes the relevant files (testcases.csv from cx_audit and main.py) to the target directory.
+# Given a [code]expert project source directory extracts and anonimizes the relevant files (testcases.csv from cx_audit and main.py) to the target directory.
 def extract_project(source_directory, target_directory):
     n_students = 0
     n_existing_audit_files = 0
@@ -55,7 +55,7 @@ def extract_project(source_directory, target_directory):
     else:
         print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "red"))
 
-# Given a [code]Expert project and a path to a scoreboard file containing the grades of students extracts (and returns) 
+# Given a [code]expert project and a path to a scoreboard file containing the grades of students extracts (and returns) 
 # the grades of the students for the module presentation belonging to the project.
 def extract_presentation_grades_from_scoreboard(project_directory, path_to_scoreboard_file):
     modul_nummer = re.findall("M_\d", project_directory)[0][2] # find out what module the project belongs to
@@ -82,7 +82,7 @@ def get_n_test_cases(test_results_csv):
             row_count += 1
     return row_count
 
-# Given a cleaned-up [code]Expert project and the grades of students for the module presentation belonging to the project 
+# Given a cleaned-up [code]expert project and the grades of students for the module presentation belonging to the project 
 # extracts the info from audit-files and writes them to a csv.
 def collect_student_data_from_project(project_directory, student_grades):
     results = {} # collect test results
@@ -116,6 +116,7 @@ def collect_student_data_from_project(project_directory, student_grades):
                                 results[row[0].replace(" ", "_") + "_TRUE_POSITIVE"] += 1
                             elif(student_grades[student_name] in [0.5, 0.0]):
                                 results[row[0].replace(" ", "_") + "_FALSE_POSITIVE"] += 1
+                            # The grade may also be -1.0, which means that the student missed the appointment
                         elif(row[1].__contains__("failure")):
                             results[row[0].replace(" ", "_") + "_FAIL"] += 1
                             if(student_grades[student_name] in [0.5, 0.0]):
@@ -144,29 +145,40 @@ def collect_student_data_from_project(project_directory, student_grades):
     # Generate Plot:
     project_test_cases_data = []
     for i in range(len(results) // 8):
-        project_test_cases_data.append(["Test " + str(i+1),
-                                        results["Test_" + str(i+1) + "_TRUE_POSITIVE"], 
-                                        results["Test_" + str(i+1) + "_FALSE_POSITIVE"],
-                                        results["Test_" + str(i+1) + "_TRUE_NEGATIVE"],
-                                        results["Test_" + str(i+1) + "_FALSE_NEGATIVE"]])
+        test_case_data = ["Test " + str(i+1),
+                            results["Test_" + str(i+1) + "_TRUE_POSITIVE"], 
+                            results["Test_" + str(i+1) + "_FALSE_POSITIVE"],
+                            results["Test_" + str(i+1) + "_TRUE_NEGATIVE"],
+                            results["Test_" + str(i+1) + "_FALSE_NEGATIVE"],
+                            results["Test_" + str(i+1) + "_ERROR"]]
+        test_case_data.append(sum(test_case_data[1:]))
+        print(test_case_data)
+        project_test_cases_data.append(test_case_data)
     make_bar_plot_for_single_project(os.path.basename(project_directory), project_test_cases_data)
     return results
 
+# Given a project title and the extracted test cases data creates a simple bar plot.
 def make_bar_plot_for_single_project(project_title, project_test_cases_data):
+    # project_test_cases_data should be structured as follows:
+    # [[test_name, n_true_positives, n_false_positives, n_true_negatives, n_false_negatives, n_errors, total], [...], ...]
     plotdata = pd.DataFrame({
-        "True Positives": [test[1] for test in project_test_cases_data],
-        "False Positives": [test[2] for test in project_test_cases_data],
-        "True Negatives": [test[3] for test in project_test_cases_data],
-        "False Negatives": [test[4] for test in project_test_cases_data]
+        "True Positives": [test[1]/test[6] for test in project_test_cases_data],
+        "False Positives": [test[2]/test[6] for test in project_test_cases_data],
+        "True Negatives": [test[3]/test[6] for test in project_test_cases_data],
+        "False Negatives": [test[4]/test[6] for test in project_test_cases_data],
+        "Errors": [test[5]/test[6] for test in project_test_cases_data]
     }, index=[test[0] for test in project_test_cases_data])
     green = (0.173, 0.627, 0.173)
     red = (0.839, 0.153, 0.157)
     blue = (0.122, 0.467, 0.706)
     orange = (1.000, 0.498, 0.055)
-    my_colors = [green, red, blue, orange]
+    black = (0.750, 0.750, 0.750)
+    my_colors = [green, red, orange, blue, black]
     print(plotdata)
     plotdata.plot(kind="bar", figsize=(15, 8), color=my_colors)
     plt.title(project_title)
     plt.xlabel("Test-Cases")
-    plt.ylabel("# students")
+    plt.ylabel("% of students")
+    plt.ylim([0, 1])
+    plt.yticks([0.1 * x for x in range(11)])
     plt.show()

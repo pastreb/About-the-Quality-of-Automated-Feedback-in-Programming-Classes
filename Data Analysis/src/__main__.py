@@ -21,7 +21,37 @@ if __name__ == '__main__':
         # APro_2021_M_1A_A_1_Temperaturberechnung
         # APro_2021_M_1A_A_2_Zeichenketten_und_Variablentausch
         # APro_2021_M_1A_A_3_Kreisberechnung
-        if os.path.isdir(source_project_directory) and source_project == "GDI_2021_M_6_SA_2_Tic_Tac_Toe_Spiel":
+
+        # GDI_2022_M_1_A_1_Ein_erstes_Programm_und_Datentypen
+        # GDI_2022_M_1_A_2_Temperaturberechnung
+        # GDI_2022_M_1_A_3_Zeichenketten_und_Variablentausch
+        # GDI_2022_M_1_A_4_Kreisberechnung
+        # GDI_2022_M_1_SA_1_Geldautomat
+        # GDI_2022_M_1_SA_2_Verschluesselung
+
+        # GDI_2022_M_2_A_1_Berechnungsreihe
+        # GDI_2022_M_2_A_2_Pin_Code
+        # GDI_2022_M_2_SA_1_Zahlen_raten
+        # GDI_2022_M_2_SA_2_Notenprogramm
+
+        # GDI_2022_M_3_A_2_Kartenspiel
+        # GDI_2022_M_3_A_3_Medikamenten_Simulation
+        # GDI_2022_M_3_SA_1_To_Do_Liste
+        # GDI_2022_M_3_SA_2_Such_und_Sortieralgorithmen
+        # GDI_2022_M_3_SA_3_1_Auswerten_von_Einzelbasen
+        # GDI_2022_M_3_SA_3_2_Auswerten_von_Basen_Sequenzen
+        # GDI_2022_M_3_SA_3_3_Auswerten_einer_Liste_von_Basen_Sequenzen
+        # GDI_2022_M_3_SA_3_4_Testen_einer_Hypothese_mittels_DNA_Sequenzanalyse
+        # GDI_2022_M_4_A_1_Lieferschein
+        # GDI_2022_M_4_A_2_Simulation_einer_ansteckenden_Krankheit
+        # GDI_2022_M_4_SA_1_Bowling
+        # GDI_2022_M_4_SA_2_Erweiterungen_zur_Case_Study
+
+        # TODO:
+        # GDI_2022_M_2_SA_3_Pokern
+        # GDI_2022_M_3_A_1_Planeten
+
+        if os.path.isdir(source_project_directory) and (source_project == "GDI_2022_M_4_SA_3_Schere_Stein_Papier_Spiel" or source_project == "GDI_2022_M_4_SA_3_Schere_Stein_Papier_Spiel_fixed_main_exec"):
             print("Processing", source_project)
             os.mkdir(target_project_directory)
             extract_project(source_project_directory, target_project_directory)
