@@ -182,3 +182,21 @@
     else:
         print(colored("Schau dir doch mal die Test-Cases an!", "green"))
     ```
+- Example for checking and getting a function in a Test Case:
+    ```python
+      def check_and_get_palindrome_function(self, main):
+        if "is_palindrome" in dir(main):
+        n_params = len(signature(main.is_palindrome).parameters)
+        assert n_params == 1, "Die Funktion \"is_palindrome\" soll 1 Parameter entgegennehmen, aktuell erwartet sie aber " + str(n_params) + " Parameter"
+        ret = main.is_palindrome("dummy")
+        assert ret in [True, False], "Die Funktion \"is_palindrome\" soll immer einen Boolean (True oder False) zurückgeben, für den Input \"dummy\" gibt sie aber " + str(ret) + " zurück"
+        return main.is_palindrome # if we reach this we have successfully tested the signature of is_palindrome
+        for element in dir(main): # if the function has another name, we try to find it as well
+        if find_edit_distance("palindrom", element) <= abs(len("palindrom") - len(element)) + 1:
+            n_params = len(signature(getattr(main, element)).parameters)
+            assert n_params == 1, "Die Funktion " + element + " soll 1 Parameter entgegennehmen, aktuell erwartet sie aber " + str(n_params) + " Parameter"
+            ret = getattr(main, element)("dummy")
+            assert ret in [True, False], "Die Funktion " + element + " soll immer einen Boolean (True oder False) zurückgeben, für den Input \"dummy\" gibt sie aber " + str(ret) + " zurück"
+            return getattr(main, element) # if we reach this we have successfully tested the signature of some palindrome function
+        return None
+    ```
