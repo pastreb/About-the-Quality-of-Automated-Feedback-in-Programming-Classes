@@ -84,7 +84,7 @@ def get_n_test_cases(test_results_csv):
 
 # Given a cleaned-up [code]expert project and the grades of students for the module presentation belonging to the project 
 # extracts the info from audit-files and writes them to a csv.
-def collect_student_data_from_project(project_directory, student_grades):
+def collect_student_data_from_project(project_directory, student_grades, get_plot=True):
     results = {} # collect test results
     for _, _, files in os.walk(project_directory): # traverse files in project directory
         for file in files:
@@ -143,18 +143,19 @@ def collect_student_data_from_project(project_directory, student_grades):
         for key in results:
             writer.writerow([os.path.basename(project_directory), key, results[key]])
     # Generate Plot:
-    project_test_cases_data = []
-    for i in range(len(results) // 8):
-        test_case_data = ["Test " + str(i+1),
-                            results["Test_" + str(i+1) + "_TRUE_POSITIVE"], 
-                            results["Test_" + str(i+1) + "_FALSE_POSITIVE"],
-                            results["Test_" + str(i+1) + "_TRUE_NEGATIVE"],
-                            results["Test_" + str(i+1) + "_FALSE_NEGATIVE"],
-                            results["Test_" + str(i+1) + "_ERROR"]]
-        test_case_data.append(sum(test_case_data[1:]))
-        print(test_case_data)
-        project_test_cases_data.append(test_case_data)
-    make_bar_plot_for_single_project(os.path.basename(project_directory), project_test_cases_data)
+    if get_plot:
+        project_test_cases_data = []
+        for i in range(len(results) // 8):
+            test_case_data = ["Test " + str(i+1),
+                                results["Test_" + str(i+1) + "_TRUE_POSITIVE"], 
+                                results["Test_" + str(i+1) + "_FALSE_POSITIVE"],
+                                results["Test_" + str(i+1) + "_TRUE_NEGATIVE"],
+                                results["Test_" + str(i+1) + "_FALSE_NEGATIVE"],
+                                results["Test_" + str(i+1) + "_ERROR"]]
+            test_case_data.append(sum(test_case_data[1:]))
+            print(test_case_data)
+            project_test_cases_data.append(test_case_data)
+        make_bar_plot_for_single_project(os.path.basename(project_directory), project_test_cases_data)
     return results
 
 # Given a project title and the extracted test cases data creates a simple bar plot.
