@@ -142,19 +142,10 @@
     [...]
     ```
 - Use contents from `main.py` (e.g. variables or functions) in `test_cases.py`:
-    - Modify `main_exec.py` as follows:
-    import sys
     ```python
-    def main_exec():
-        # If a (patched) module is loaded, delete it
-        if 'main' in sys.modules:  
-            del sys.modules["main"]
-        import main
-        return main
-    ```
-    - This allows us to do things as the following in `test_cases.py`:
-    ```python
-    main = main_exec.main_exec()
+    if 'main' in sys.modules:  
+      del sys.modules["main"]
+    import main
     assert "size" in dir(main), "Du definierst keine Variable \"size\", welche existieren und die Grösse des Spielfelds steuern soll"
     assert main.size == 7, "Die Grösse des Spielfelds sollte 7 sein, deine Variable \"size\" hat aber den Wert " + str(main.size)
     ```
@@ -184,7 +175,11 @@
     ```
 - Example for checking and getting a function in a Test Case:
     ```python
-      def check_and_get_palindrome_function(self, main):
+    def check_and_get_palindrome_function(self):
+        # If a (patched) module is loaded, delete it
+        if 'main' in sys.modules:  
+        del sys.modules["main"]
+        import main
         if "is_palindrome" in dir(main):
         n_params = len(signature(main.is_palindrome).parameters)
         assert n_params == 1, "Die Funktion \"is_palindrome\" soll 1 Parameter entgegennehmen, aktuell erwartet sie aber " + str(n_params) + " Parameter"
@@ -198,5 +193,6 @@
             ret = getattr(main, element)("dummy")
             assert ret in [True, False], "Die Funktion " + element + " soll immer einen Boolean (True oder False) zurückgeben, für den Input \"dummy\" gibt sie aber " + str(ret) + " zurück"
             return getattr(main, element) # if we reach this we have successfully tested the signature of some palindrome function
+        assert False, "Du scheinst keine Funktion zu definieren, welche die Spezifikationen erfüllt"
         return None
     ```
