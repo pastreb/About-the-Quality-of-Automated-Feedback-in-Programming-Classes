@@ -1,5 +1,0 @@
-** 					# exclude all confidential student data (with subdirectories)
-
-!.gitignore
-!*/SAMPLE_2023_M_1_Testprogramm		# include sample data
-!SAMPLE_2023_Scoreboard.csv
