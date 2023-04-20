@@ -56,14 +56,14 @@ def __get_scores_for_export(project_name):
     scores = {}
     with open(scoreboard_file, mode='r') as scoreboard: # read content from csv
         for i, row in enumerate(csv.reader(scoreboard, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)):
-            if(i == 0): # get indeces for the columns with the username and the score of the relevant module presentation
+            if i == 0: # get indeces for the columns with the username and the score of the relevant module presentation
                 name_index = row.index("Username")
                 row_index = row.index("Modul " + module_number)
-            elif("LTI" in row[name_index]): # skip LTI Accounts
+            elif "LTI" in row[name_index]: # skip LTI Accounts
                 continue
             else:
                 score = re.findall("1|0\.5|0", row[row_index]) # find score
-                if(len(score) > 0):
+                if len(score) > 0:
                     scores[__get_gibberish_string_for_student(row[name_index])] = float(score[0]) # anonymize
                 else:
                     scores[__get_gibberish_string_for_student(row[name_index])] = -1.0 # encode everything non-graded as -1.0
@@ -96,11 +96,14 @@ def extract_project(project_name):
             if len(student_code) == 0: # no match
                 print(colored("Could not find student code in " + root, "red"))
                 continue
-            if(__get_gibberish_string_for_student(student_code) not in scores):
+            if __get_gibberish_string_for_student(student_code) not in scores:
                 print(colored("Could not find score of student " + student_code + ", so I will skip this student", "yellow"))
                 continue
             # Find and move main file:
             src = os.path.join(source_path, root, "main.py")
+            if not os.path.isfile(src):
+                print(colored("Could not main.py of student " + student_code + ", so I will skip this student", "yellow"))
+                continue
             dest = os.path.join(target_path, __get_gibberish_string_for_student(student_code) + "_main.py") # anonymize
             # print("Moving", src, "to", dest) # uncomment for verbose output
             shutil.copy(src, dest) # copy and rename main.py
@@ -132,8 +135,10 @@ def extract_projects(include=[], exclude=[]):
             if project_name not in exclude and os.path.isdir(os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name)):
                 print("Processing", project_name)
                 extract_project(project_name)
+                print()
     else:
         for project_name in include:
             if os.path.isdir(os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name)):
                 print("Processing", project_name)
                 extract_project(project_name)
+                print()
