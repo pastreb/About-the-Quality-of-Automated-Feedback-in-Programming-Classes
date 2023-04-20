@@ -1,4 +1,4 @@
-*/* 					# exclude all confidential student data (with subdirectories)
+**/ 					# exclude all confidential student data (with subdirectories)
 /*.*
 
 !.gitignore
