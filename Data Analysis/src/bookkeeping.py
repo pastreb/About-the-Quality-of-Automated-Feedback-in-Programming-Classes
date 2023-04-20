@@ -7,7 +7,7 @@ COURSE_PERFIXES = ["GDI", "APRO", "AIT", "SAMPLE"]
 YEARS = ["2020", "2021", "2022", "2023"]
 
 SAMPLE =       [   
-                    "SAMPLE_2023_M_1_Hotelverwaltung"
+                    "SAMPLE_2023_M_1_Testprogramm"
                     ]
 
 GDI_2022_M_1 = [
