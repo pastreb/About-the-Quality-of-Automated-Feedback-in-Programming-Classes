@@ -1,7 +1,7 @@
-data/raw_student_data/*			# exclude confidential student data
-!data/raw_student_data/SAMPLE_*		# include sample data
-data/processed_student_data/*		# exclude anonymized student data for now
-!data/processed_student_data/SAMPLE_*	# include sample data
+/data/raw_student_data/*			# exclude confidential student data
+!/data/raw_student_data/SAMPLE_*/		# include sample data
+/data/processed_student_data/*		# exclude anonymized student data for now
+!/data/processed_student_data/SAMPLE_*/	# include sample data
 
 venv/*
 *.pyc
