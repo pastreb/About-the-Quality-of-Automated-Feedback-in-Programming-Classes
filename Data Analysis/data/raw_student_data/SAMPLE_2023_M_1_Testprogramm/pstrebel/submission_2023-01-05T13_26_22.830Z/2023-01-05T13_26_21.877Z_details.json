@@ -1,0 +1,14 @@
+{
+  "username": "pstrebel",
+  "email": "pascal.strebel@inf.ethz.ch",
+  "gender": "m",
+  "firstname": "Pascal",
+  "lastname": "Strebel",
+  "legi": "xx-xxx-xxx",
+  "isRegrade": false,
+  "graded": true,
+  "submissionDate": "2023-03-03T13:37:42.877Z",
+  "result": 1,
+  "cherryPicked": true,
+  "autograderResult": 1
+}

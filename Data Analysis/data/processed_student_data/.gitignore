@@ -1,0 +1,4 @@
+* 					# exclude all anonymized student data for now
+
+!.gitignore
+!*/SAMPLE_2023_M_1_Testprogramm		# include sample data
