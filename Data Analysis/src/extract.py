@@ -12,31 +12,38 @@ import bookkeeping
 def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
     """ 
     Call this before any other method here.
-    Expects that bookkeeping.SOURCE_DIRECTORY is set to an existing path (the location is supposed to contain [code]expert project exports).
+    Expects that bookkeeping.SOURCE_DIRECTORY is set to an existing path 
+    (the location is supposed to contain [code]expert project exports).
     Creates bookkeeping.TARGET_DIRECTORY.
-    If clear_target_directory is set to true (default) and bookkeeping.TARGET_DIRECTORY already exists, then bookkeeping.TARGET_DIRECTORY is wiped.
+    If clear_target_directory is set to true (default) and bookkeeping.TARGET_DIRECTORY 
+    already exists, then bookkeeping.TARGET_DIRECTORY is wiped.
+    Renames all projects in bookkeeping.SOURCE_DIRECTORY that are named after
+    some eduID- or LTI-account to the actual student code (if possible).
+    Propagates this renaming to Scoreboard files in bookkeeping.SOURCE_DIRECTORY if necessary.
     """
-    if os.name == 'nt':
-        # If on Windows we need to activate colored print:
-        os.system("color")
+    
+    # Activate colored print on Windows systems
+    if os.name == 'nt': os.system("color")
+
+    # Check if the source directory exists
     if not os.path.exists(bookkeeping.SOURCE_DIRECTORY):
         exit(colored("Source directory", bookkeeping.SOURCE_DIRECTORY, "does not exist", "red"))
+    
+    # Check if the target directory exists and we need to clear it
     if os.path.exists(bookkeeping.TARGET_DIRECTORY) and clear_target_directory:
         try:
+            # Remove the target directory and all its contents
             shutil.rmtree(bookkeeping.TARGET_DIRECTORY)
         except OSError as error:
             exit(colored("Failed to delete directory\n", error, "red"))
+    
+    # Check if the target directory does not exist
     if not os.path.exists(bookkeeping.TARGET_DIRECTORY):
+        # If it does not exist, create it
         os.mkdir(bookkeeping.TARGET_DIRECTORY)
-    __rename_eduid_or_lti_projects()
-
-def __rename_eduid_or_lti_projects() -> None:
-    """
-    Renames all projects in bookkeeping.SOURCE_DIRECTORY that are named after some eduID- or LTI-account to the actual student code (if possible)
-    Propagates this renaming to Scoreboard files in bookkeeping.SOURCE_DIRECTORY if necessary.
-    """
-    id_to_student_code = {} # bookkeeping
-    # Renaming projects:
+    
+    # Try to rename projects that are named after some eduID- or LTI-account
+    id_to_student_code: Dict[str, str] = {}
     for project in os.listdir(bookkeeping.SOURCE_DIRECTORY):
         project_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project)
         if os.path.isdir(project_path):
@@ -46,16 +53,15 @@ def __rename_eduid_or_lti_projects() -> None:
                     for root, _, files in os.walk(submission_path):
                         for file in files:
                             if "details.json" in file:
-                                student_details = open(os.path.join(submission_path, root, file))
-                                data = json.load(student_details)
-                                student_code = re.findall(".*\@", data['email'])[0][:-1]
-                                if data['username'] not in id_to_student_code:
-                                    id_to_student_code[data['username']] = student_code
-                                else:
-                                    if id_to_student_code[data['username']] != student_code:
-                                        print(colored("Same ID " + data['username'] + " for different students " + id_to_student_code[data['username']] + " and " + student_code, "yellow"))
-                                new_submission_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project, submission.replace(data['username'], student_code))
-                                student_details.close()
+                                with open(os.path.join(submission_path, root, file)) as student_details:
+                                    data = json.load(student_details)
+                                    student_code = re.findall(".*\@", data['email'])[0][:-1]
+                                    if data['username'] not in id_to_student_code:
+                                        id_to_student_code[data['username']] = student_code
+                                    else:
+                                        if id_to_student_code[data['username']] != student_code:
+                                            print(colored("Same ID " + data['username'] + " for different students " + id_to_student_code[data['username']] + " and " + student_code, "yellow"))
+                                    new_submission_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project, submission.replace(data['username'], student_code))
                     try:
                         shutil.copytree(submission_path, new_submission_path)
                         shutil.rmtree(submission_path)
@@ -65,22 +71,41 @@ def __rename_eduid_or_lti_projects() -> None:
                         print(colored(type(e), "red"))
                         print(colored(e.args, "red"))
                         print(colored(e, "red"))
-    # Propagating changes to Scoreboard files:
+
+    # Propagate changes to Scoreboard files and clean them up
     for scoreboard_file in os.listdir(bookkeeping.SOURCE_DIRECTORY):
-        if "Scoreboard" in scoreboard_file:
+        if "Scoreboard" in scoreboard_file and ".csv" in scoreboard_file:
             scoreboard_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, scoreboard_file)
             new_scoreboard_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, scoreboard_file.replace(".csv", "_new.csv"))
+            scoreboard_data = {}
             with open(scoreboard_path, mode='r') as scoreboard: # read content from csv
                 with open(new_scoreboard_path, mode='w') as new_scoreboard: # write content to csv
                     writer = csv.writer(new_scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
                     for i, row in enumerate(csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)):
-                        if i == 0: # get index for the column with the username
+                        # Get index for the column with the username
+                        if i == 0:
                             name_index = row.index("Username")
+                            index_row = row
+                            writer.writerow(row) # write header row
+                            continue
+                        # Change name from eduID/LTI to actual student code if possible
                         elif ("eduID" in row[name_index] or "LTI" in row[name_index]) and row[name_index] in id_to_student_code:
-                                row[name_index] = id_to_student_code[row[name_index]]
-                        writer.writerow(row)
+                            row[name_index] = id_to_student_code[row[name_index]]
+                        if row[name_index] not in scoreboard_data:
+                            scoreboard_data[row[name_index]] = row
+                        else:
+                            # Merge rows
+                            old_row = scoreboard_data[row[name_index]]
+                            for i in range(len(old_row)):
+                                if i != name_index and len(row[i]) != 0:
+                                    if len(old_row[i]) == 0:
+                                        old_row[i] = row[i]
+                                    else:
+                                        print(colored("Duplicated data for " + index_row[i] + " in " + scoreboard_file + ": " + old_row[i] + " vs. " + row[i], "yellow"))
+                    for person in scoreboard_data:
+                        writer.writerow(scoreboard_data[person])
             os.remove(scoreboard_path)
-            shutil.move(new_scoreboard_path, scoreboard_path)
+            shutil.move(new_scoreboard_path, scoreboard_path) 
 
 # Maintains a unique random string for each student code:
 student_code_to_gibberish = {}
@@ -108,7 +133,7 @@ def __get_scores_for_export(project_name : str) -> dict:
     course_prefix = re.findall(str(bookkeeping.COURSE_PERFIXES).replace(", ", "|").replace("'", "")[1:-1], project_name)
     year = re.findall(str(bookkeeping.YEARS).replace(", ", "|").replace("'", "")[1:-1], project_name)
     module_number = re.findall("M_\d", project_name)
-
+    # TODO: Handle Exam Scores 
     if len(course_prefix) == 0 or len(year) == 0 or len(module_number) == 0:
         exit(colored("Could not find Scoreboard file for project " + project_name, "red"))
     course_prefix = course_prefix[0] # unpack regex result
@@ -198,7 +223,6 @@ def extract_project(project_name : str) -> str:
                 with open(dest, mode='a') as test_results: # append score to csv
                     writer = csv.writer(test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator = '\n')
                     writer.writerow(["Presentation Score", "Score: " + str(scores[__get_gibberish_string_for_student(student_code)])])
-                    # TODO: include other scores
     print("Successfully moved and renamed files from", n_students, "students", end=' ')
     if n_students == n_existing_audit_files: # print info on number of found audit (test result) files
         print(colored(str(n_existing_audit_files) + "/" + str(n_students) + " audit file(s)", "green"))
