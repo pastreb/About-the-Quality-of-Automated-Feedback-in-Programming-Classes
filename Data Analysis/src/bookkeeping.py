@@ -62,6 +62,16 @@ GDI_2022_M_6 = [
                     "GDI_2022_M_6_SA_3_Monte_Carlo_Erweiterung_Schere_Stein_Papier"
                     ]
 
+GDI_2022_SEMTEST = [
+                    "GDI_2022_SEMTEST_Notenprogramm",
+                    "GDI_2022_SEMTEST_Waldbrand"
+                    ]
+
+GDI_2022_EXAM = [
+                    "GDI_2022_EXAM_SQL_Notenauswertung",
+                    "GDI_2022_EXAM_DNA"
+                    ]
+
 GDI_2022 = GDI_2022_M_1 + GDI_2022_M_2 + GDI_2022_M_3 + GDI_2022_M_4 + GDI_2022_M_5 + GDI_2022_M_6
 GDI_2022_TRY = [project for project in GDI_2022 if "_A_" in project] + [project + "_fixed_main_exec" for project in GDI_2022 if "_A_" in project]
 GDI_2022_DO = [project for project in GDI_2022 if "_SA_" in project] + [project + "_fixed_main_exec" for project in GDI_2022 if "_SA_" in project]
