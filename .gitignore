@@ -8,6 +8,7 @@ Data Analysis/data/processed_student_data/*
 !Data Analysis/data/raw_student_data/SAMPLE_2023_M_1_Testprogramm/ 
 !Data Analysis/data/raw_student_data/SAMPLE_2023_M_1_Testprogramm/SAMPLE_2023_Scoreboard.csv
 !Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm/
+!Data Analysis/data/processed_student_data/sample_out.csv
 
 Data Analysis/venv/*
 *.pyc

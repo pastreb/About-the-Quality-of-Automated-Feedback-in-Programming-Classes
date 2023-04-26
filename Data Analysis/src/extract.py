@@ -3,6 +3,7 @@ import json
 import os
 import random
 import re # regex
+import time
 import shutil # moving files through directories
 import string
 
@@ -10,6 +11,7 @@ from termcolor import colored # for printing funny colored text
 from typing import Dict
 
 import bookkeeping
+import test_info
 
 
 
@@ -28,8 +30,7 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
     files in `bookkeeping.SOURCE_DIRECTORY` if necessary.
 
     Args:
-        clear_target_directory (bool, optional): Whether to clear the target directory if it already 
-        exists. Defaults to True.
+        clear_target_directory (bool, optional): Whether to clear the target directory if it already exists. Defaults to True.
     """
     
     # Activate colored print on Windows systems
@@ -164,11 +165,11 @@ def __get_gibberish_string_for_student(student_code : str, len : int = 6) -> str
     On subsequent encounters, returns the previously generated gibberish string.
 
     Args:
-        student_code: The student code to anonymize.
-        len: The length of the gibberish string to generate (default 6).
+        student_code (str): The student code to anonymize.
+        len (int, optional): The length of the gibberish string to generate (default 6).
 
     Returns:
-        The anonymized student code as a gibberish string.
+        str: The anonymized student code as a gibberish string.
     """
     
     if student_code not in student_code_to_gibberish.keys():
@@ -190,10 +191,10 @@ def __get_scores_for_export(project_name : str) -> dict:
     TODO: Describe Encoding
 
     Args:
-        project_name: The name of the project to retrieve scores for.
+        project_name (str): The name of the project to retrieve scores for.
 
     Returns:
-        A dictionary mapping anonymized student codes to their corresponding scores.
+        dict: A dictionary mapping anonymized student codes to their corresponding scores.
     """
     
     # Extract course prefix, year, and module number from the project name
@@ -303,7 +304,7 @@ def extract_project(project_name : str) -> None:
         return
     # Check if project is already exported
     if os.path.exists(target_path):
-        print(colored("Project already exported, consider deleting it", "red"))
+        print(colored("Project already exported, consider deleting it", "yellow"))
         return
     # Create target directory if it doesn't exist
     os.mkdir(target_path)
@@ -434,13 +435,12 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
     """
     Extracts projects from the bookkeeping.SOURCE_DIRECTORY.
     
-    Parameters:
-    include (list): A list of project names. If provided, only these projects will be extracted.
-    exclude (list): A list of project names. Projects in this list will be excluded from the extraction.
+    Args:
+        include (list): A list of project names. If provided, only these projects will be extracted.
+        exclude (list): A list of project names. Projects in this list will be excluded from the extraction.
     
     Returns:
-    None
-    
+        None
     """
 
     # If include is not provided, extract all projects that are not in exclude
@@ -457,3 +457,37 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
                 print(f"Processing {project_name}")
                 extract_project(project_name)
                 print()
+
+
+
+def one_csv_to_rule_them_all():
+    # Create an empty list to store the rows from all CSV files
+    all_rows = [test_info.CSV_HEADER]
+    # Loop through all exported projects
+    print("I will now collect the project data from the CSV files")
+    for project in os.listdir(bookkeeping.TARGET_DIRECTORY):
+        project_path = os.path.join(bookkeeping.TARGET_DIRECTORY, project)
+        project_test_info = test_info.ProjectTestInfo(project)
+        # Loop through all files in the projects
+        for file in os.listdir(project_path):
+            # Check if the file is a CSV file
+            if not file.endswith(".csv"):
+                continue
+            # Define the path to the CSV file
+            file_path = os.path.join(project_path, file)
+            rows = []
+            # Open the CSV file and read the rows
+            with open(file_path, "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                for row in csv_reader:
+                    rows.append(row)
+            project_test_info.add_submission(rows)
+        for row in project_test_info.finalize():
+            all_rows.append(row)
+        print(colored(f"Done: {project}", "green"))
+    output_file = os.path.join(bookkeeping.TARGET_DIRECTORY, f"out_{time.time()}.csv")
+    # Write the combined rows to the output file
+    with open(output_file, "w", newline="") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        writer.writerows(all_rows)
+    print(colored(f"Successfully combined information on {len(all_rows)-1} test cases from CSV files in {bookkeeping.TARGET_DIRECTORY} into {output_file}", "green"))
