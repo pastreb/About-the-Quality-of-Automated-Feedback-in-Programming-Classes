@@ -185,8 +185,9 @@ def __get_scores_for_export(project_name : str) -> dict:
 
     """
     Finds the Scoreboard-file in bookkeeping.SOURCE_DIRECTORY corresponding to `project_name`.
-    Returns a dictionary with entries of the form (anonymized student, score)
-    (e.g. ("abcdef", 1.0)).
+    Returns a dictionary with entries of the form (anonymized student, [presentation score, exam result])
+    (e.g. ("abcdef", [1.0, 1.0])).
+    TODO: Describe Encoding
 
     Args:
         project_name: The name of the project to retrieve scores for.
@@ -199,7 +200,6 @@ def __get_scores_for_export(project_name : str) -> dict:
     course_prefix = re.findall(str(bookkeeping.COURSE_PERFIXES).replace(", ", "|").replace("'", "")[1:-1], project_name)
     year = re.findall(str(bookkeeping.YEARS).replace(", ", "|").replace("'", "")[1:-1], project_name)
     module_number = re.findall("M_\d", project_name)
-    # TODO: Handle Exam Scores
     # Check that all required components are present
     if not (course_prefix and year and module_number):
         exit(colored(f"Could not find Scoreboard file for project {project_name}", "red"))
@@ -226,7 +226,8 @@ def __get_scores_for_export(project_name : str) -> dict:
             # Extract score
             score = re.findall("1|0\.5|0", row[row_index])
             anonymized_student_code = __get_gibberish_string_for_student(row[name_index])
-            scores[anonymized_student_code] = float(score[0]) if score else -1.0 # encode everything non-graded as -1.0
+            scores[anonymized_student_code] = [float(score[0]), 1.0] if score else [-1.0, 1.0]
+            # TODO: Implement Treatment of Exam Result
     return scores
 
 
@@ -358,7 +359,8 @@ def extract_project(project_name : str) -> None:
             # Create a CSV writer for the new audit file
             writer = csv.writer(target_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
             writer.writerow(["Number of Tests", str(len(rows))])
-            writer.writerow(["Presentation Score", str(scores[__get_gibberish_string_for_student(student_code)])])
+            writer.writerow(["Presentation Score", str(scores[anonymized_student_code][0])])
+            writer.writerow(["Exam Result", str(scores[anonymized_student_code][1])])
             for row in rows:
                 writer.writerow(row)
     # Print results
@@ -448,7 +450,6 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
                 print(f"Processing {project_name}")
                 extract_project(project_name)
                 print()
-    
     # If include is provided, extract only the projects in include
     else:
         for project_name in include:
