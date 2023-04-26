@@ -37,8 +37,7 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
 
     # Check if the source directory exists
     if not os.path.exists(bookkeeping.SOURCE_DIRECTORY):
-        exit(colored(f"Source directory {bookkeeping.SOURCE_DIRECTORY} does not exist", "red"))
-    
+        exit(colored(f"Source directory {bookkeeping.SOURCE_DIRECTORY} does not exist", "red"))    
     # Check if the target directory exists and we need to clear it
     if os.path.exists(bookkeeping.TARGET_DIRECTORY) and clear_target_directory:
         try:
@@ -46,7 +45,6 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
             shutil.rmtree(bookkeeping.TARGET_DIRECTORY)
         except Exception as e:
             exit(colored(f"Failed to delete directory\n{type(e)}\n{e.args}\n{e}", "red"))
-    
     # Check if the target directory does not exist
     if not os.path.exists(bookkeeping.TARGET_DIRECTORY):
         # If it does not exist, create it
@@ -56,7 +54,6 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
     
     # A dictionary that maps the username to the corresponding student code
     id_to_student_code: Dict[str, str] = {}
-
     # Iterate through all the directories in the SOURCE_DIRECTORY
     for project in os.listdir(bookkeeping.SOURCE_DIRECTORY):
         project_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project)
@@ -71,7 +68,6 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                         for file in files:
                             # Look for the "details.json" file in the submission directory
                             if "details.json" in file:
-                                
                                 # Read the data from the "details.json" file
                                 with open(os.path.join(submission_path, root, file)) as student_details:
                                     data = json.load(student_details)
@@ -87,7 +83,6 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                                             print(colored(f"Same ID {data['username']} for different students {id_to_student_code[data['username']]} and {student_code}", "yellow"))
                                     # Generate the new path for the submission directory
                                     new_submission_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project, submission.replace(data['username'], student_code))
-                    
                     try:
                         # Rename the submission directory to the new path
                         shutil.copytree(submission_path, new_submission_path)
@@ -100,47 +95,36 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
 
     # Loop over all files in the directory
     for scoreboard_file in os.listdir(bookkeeping.SOURCE_DIRECTORY):
-
         # Check if the file name contains "Scoreboard" and ends with ".csv"
         if "Scoreboard" in scoreboard_file and scoreboard_file.endswith(".csv"):
-            
             # Get the path of the scoreboard file and the path of the new scoreboard file
             scoreboard_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, scoreboard_file)
             new_scoreboard_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, scoreboard_file.replace(".csv", "_new.csv"))
-            
             # Create a dictionary to store the data
             scoreboard_data: Dict[str, str] = {}
-            
             # Open the original CSV file for reading and the new CSV file for writing
             with open(scoreboard_path, mode='r') as scoreboard: # read content from csv
                 with open(new_scoreboard_path, mode='w') as new_scoreboard: # write content to csv
-                    
                     # Create a CSV writer for the new file
                     writer = csv.writer(new_scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-                    
                     # Create a CSV reader for the old file
-                    reader = csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
+                    reader = csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
                     # Find index for the username column
                     header = next(reader)
                     try:
                         name_index = header.index("Username")
                     except:
                         # Try to use ';' for the delimiter instead of ';'
-                        reader = csv.reader(scoreboard, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                        reader = csv.reader(scoreboard, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
                         header = header[0].split(';')
                         name_index = header.index("Username")
-
                     # Write header row
                     writer.writerow(header)
-
                     # Loop over each row in the original CSV file
                     for row in reader:
-
                         # Change name from eduID/LTI to actual student code if possible
                         if ("eduID" in row[name_index] or "LTI" in row[name_index]) and row[name_index] in id_to_student_code:
                             row[name_index] = id_to_student_code[row[name_index]]
-                        
                         # Add the row to the scoreboard data dictionary if the username is not already in the dictionary
                         if row[name_index] not in scoreboard_data:
                             scoreboard_data[row[name_index]] = row
@@ -156,11 +140,9 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                                         print(colored(f"Duplicated data for {header[i]} in {scoreboard_file}: {old_row[i]} vs. {row[i]}", "yellow"))
                             # Update the scoreboard data dictionary with the merged row
                             scoreboard_data[row[name_index]] = old_row
-                    
                     # Write the merged rows to the new CSV file
                     for person in scoreboard_data:
                         writer.writerow(scoreboard_data[person])
-            
             # Replace the original file with the new file if the modification is successful
             try:
                 os.remove(scoreboard_path)
@@ -170,10 +152,9 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                 print(colored(f"Couldn't replace {scoreboard_path} with {new_scoreboard_path}\n{type(e)}\n{e.args}\n{e}", "yellow"))
 
 
+
 # Define a global variable to store mappings from student codes to gibberish strings
 student_code_to_gibberish: Dict[str, str] = {}
-
-
 
 def __get_gibberish_string_for_student(student_code : str, len : int = 6) -> str:
     
@@ -218,13 +199,10 @@ def __get_scores_for_export(project_name : str) -> dict:
     course_prefix = re.findall(str(bookkeeping.COURSE_PERFIXES).replace(", ", "|").replace("'", "")[1:-1], project_name)
     year = re.findall(str(bookkeeping.YEARS).replace(", ", "|").replace("'", "")[1:-1], project_name)
     module_number = re.findall("M_\d", project_name)
-
     # TODO: Handle Exam Scores
-
     # Check that all required components are present
     if not (course_prefix and year and module_number):
         exit(colored(f"Could not find Scoreboard file for project {project_name}", "red"))
-
     # Unpack regex results
     course_prefix = course_prefix[0]
     year = year[0]
@@ -232,28 +210,23 @@ def __get_scores_for_export(project_name : str) -> dict:
 
     # Construct path to scoreboard file
     scoreboard_file = os.path.join(bookkeeping.SOURCE_DIRECTORY, course_prefix + "_" + year + "_" + "Scoreboard.csv")
-    
     # Read scores from CSV file
     scores = {}
     with open(scoreboard_file, mode='r') as scoreboard:
-        reader = csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
+        # Create a CSV reader for the scoreboard file
+        reader = csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         # Find indices for the username and score columns
         header = next(reader)
         name_index = header.index("Username")
         row_index = header.index(f"Modul {module_number}")
-
         for row in reader:
-
             # Skip LTI Accounts
             if "LTI" in row[name_index]: 
                 continue
-
             # Extract score
             score = re.findall("1|0\.5|0", row[row_index])
-
-            scores[__get_gibberish_string_for_student(row[name_index])] = float(score[0]) if score else -1.0 # encode everything non-graded as -1.0
-
+            anonymized_student_code = __get_gibberish_string_for_student(row[name_index])
+            scores[anonymized_student_code] = float(score[0]) if score else -1.0 # encode everything non-graded as -1.0
     return scores
 
 
@@ -271,35 +244,33 @@ def __find_student_code(path_to_student_project : str) -> str:
         str: The student code, if found. An empty string otherwise.
     """
 
-    # Extract the parts of the path that contain the student code.
+    # Extract the parts of the path that contain the student code
     # The regex matches "/submission" or "/regrade" in the path and captures the preceding directory as the student code.
     student_code_with_surroundings = re.findall("(?:/[^/]+/submission|/[^/]+/regrade)", path_to_student_project.replace("\\", "/"))
     # If you want to have an 'or' match without having the split into match groups just add a '?:' to the beginning of the 'or' match.
     # https://stackoverflow.com/questions/24593824/why-does-re-findall-return-a-list-of-tuples-when-my-pattern-only-contains-one-gr
     # Also note that path.replace("\\", "/") simplifies our regexes as we have to escape less stuff.
-    
     if not student_code_with_surroundings:
-        # No match found.
+        # No match found
         return ""
-
     if "LTI" in student_code_with_surroundings:
         # In some cases, the folder is named after the LTI account that the student used (e.g. exam environment).
         # In such cases, we need a different way to find the student code. # TODO
         parent_dir = os.path.join(path_to_student_project, "..")
         for file_name in os.listdir(parent_dir):
             if file_name.startswith("details") and file_name.endswith(".json"):
-                # If a file named details.json is found in the parent directory, extract the student code from it.
+                # If a file named details.json is found in the parent directory, extract the student code from it
                 with open(os.path.join(parent_dir, file_name)) as student_details:
                     data = json.load(student_details)
                     # Extract the student code from the email
                     student_code = re.findall(".*\@", data['email'])[0][:-1]
                     return student_code
-        # No details.json file found.
+        # No details.json file found
         return ""
     else:
         student_code = re.findall("[^/]+", student_code_with_surroundings[0])
         if not student_code:
-            # No match found.
+            # No match found
             return ""
     return student_code[0]
 
@@ -325,79 +296,73 @@ def extract_project(project_name : str) -> None:
     # Setup paths
     source_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name)
     target_path = os.path.join(bookkeeping.TARGET_DIRECTORY, project_name)
-
     # Check if project exists in source directory
     if not os.path.exists(source_path):
         print(colored(f"Could not find project export at {source_path}", "red"))
         return
-    
     # Check if project is already exported
     if os.path.exists(target_path):
         print(colored("Project already exported, consider deleting it", "red"))
         return
-
     # Create target directory if it doesn't exist
     os.mkdir(target_path)
         
     # Get scores
     scores = __get_scores_for_export(project_name)
-
     # Prepare bookkeeping
     n_students = 0
     n_existing_audit_files = 0
-
     # Traverse the source recursively
     for root, _, _ in os.walk(source_path):
-
         # Check if folder is named "project"
         if os.path.basename(root) != "project":
             continue
-        
         n_students += 1
-
         # Find student code
         student_code = __find_student_code(root)
         if student_code == "": # no match
             print(colored(f"Could not find student code in {root}", "red"))
             continue
-
         # Check if score is found in scores
-        if __get_gibberish_string_for_student(student_code) not in scores:
+        anonymized_student_code = __get_gibberish_string_for_student(student_code)
+        if anonymized_student_code not in scores:
             print(colored(f"Could not find score of student {student_code}, so I will skip this student", "yellow"))
             continue
-
         # Find and move main file
         src = os.path.join(source_path, root, "main.py")
         if not os.path.isfile(src):
             print(colored(f"Could not find main.py of student {student_code }, so I will skip this student", "yellow"))
             continue
-
-        dest = os.path.join(target_path, __get_gibberish_string_for_student(student_code) + "_main.py") # anonymize
+        dest = os.path.join(target_path, f"{anonymized_student_code}_main.py")
         try:
             shutil.copy(src, dest) # copy and rename main.py
         except Exception as e:
             print(colored(f"Couldn't copy {src} to {dest}\n{type(e)}\n{e.args}\n{e}", "yellow"))
-
-        # Find and move audit file
+        # Find and "move" audit file
         src = os.path.join(source_path, root, "cx_audit", "testcases.csv")
         if not os.path.isfile(src):
             continue
-
         n_existing_audit_files += 1
-        dest = os.path.join(target_path, __get_gibberish_string_for_student(student_code) + "_testresults.csv") # anonymize
-        try:
-            shutil.copy(src, dest) # copy and rename testcases.csv
-        except Exception as e:
-            print(colored(f"Couldn't copy {src} to {dest}\n{type(e)}\n{e.args}\n{e}", "yellow"))
-        
-        # Append score to audit file
-        with open(dest, mode='a') as test_results:
-            writer = csv.writer(test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-            writer.writerow(["Presentation Score", "Score: " + str(scores[__get_gibberish_string_for_student(student_code)])])
-    
+        # Read from source audit file
+        rows = []
+        with open(src, mode='r') as source_csv:
+            # Create a CSV reader for the source audit file
+            reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+            i = 0
+            for row in reader:
+                rows.append([f"Test {i+1}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+                i += 1
+        # Write to new audit file
+        dest = os.path.join(target_path,  f"{anonymized_student_code}_testresults.csv")
+        with open(dest, mode='a') as target_csv:
+            # Create a CSV writer for the new audit file
+            writer = csv.writer(target_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+            writer.writerow(["Number of Tests", str(len(rows))])
+            writer.writerow(["Presentation Score", str(scores[__get_gibberish_string_for_student(student_code)])])
+            for row in rows:
+                writer.writerow(row)
     # Print results
     print(f"Successfully moved and renamed files from {n_students} students", end=' ')
-
     # Print info on number of found audit (test result) files
     if n_students == n_existing_audit_files: 
         print(colored(f"{str(n_existing_audit_files)}/{str(n_students)} audit file(s)", "green"))
@@ -410,57 +375,50 @@ def extract_project(project_name : str) -> None:
 
     # Construct path to fixed_main_exec version
     fixed_main_exec_source_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name + "_fixed_main_exec")
-    
     # Prepare bookkeeping
     n_existing_fixed_main_exec_audit_files = 0
-
     # Check if the fixed_main_exec project directory exists
     if not os.path.exists(fixed_main_exec_source_path):
         print(colored("Did not find a fixed_main_exec version of the project", "yellow"))
         return
-
     print(f"Found a fixed_main_exec version of the project, processing {project_name}_fixed_main_exec")
-        
     # Traverse the fixed_main_exec project recursively
     for root, _, _ in os.walk(fixed_main_exec_source_path):
-
         # Check if folder is named "project"
         if os.path.basename(root) != "project":
             continue
-
         # Find student code
         student_code = __find_student_code(root)
         if student_code == "": # no match
             print(colored(f"Could not find student code in {root}", "red"))
             continue
-        
         # Check if score is found in scores
-        if __get_gibberish_string_for_student(student_code) not in scores:
+        anonymized_student_code = __get_gibberish_string_for_student(student_code) 
+        if anonymized_student_code not in scores:
             print(colored(f"Could not find score of student {student_code}, so I will skip this student", "yellow"))
             continue
-
         # We are actually not interested in the main files; those are the same as in the orignial project
-        
         # Find and move audit file
         src = os.path.join(fixed_main_exec_source_path, root, "cx_audit", "testcases.csv")
-        
         # Check if the audit file exists
         if not os.path.isfile(src):
             continue
-            
         n_existing_fixed_main_exec_audit_files += 1
-
         # Get the destination path from the original project
-        dest = os.path.join(target_path, __get_gibberish_string_for_student(student_code) + "_testresults.csv") # get dest path from original project
-        
+        dest = os.path.join(target_path, f"{anonymized_student_code}_testresults.csv") # get dest path from original project
         # Append the test results to the exported audit file from the original project
-        with open(src, mode='r') as fixed_main_exec_test_results: # read from "fixed_main_exec" audit file
-            with open(dest, mode='a') as test_results: # append score to exported audit file from original project
+        # Open the source CSV file for reading and the target CSV file for writing
+        with open(src, mode='r') as fixed_main_exec_test_results:
+            with open(dest, mode='a') as test_results:
+                # Create a CSV writer for the target file
                 writer = csv.writer(test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-                for row in csv.reader(fixed_main_exec_test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL):
-                    row[0] += " fixed main_exec"
-                    writer.writerow(row)
-    
+                # Create a CSV reader for the source file
+                reader = csv.reader(fixed_main_exec_test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+                # Loop over each row in the source CSV file
+                i = 0
+                for row in reader:
+                    writer.writerow([f"Test {i+1} (fixed_main_exec)", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+                    i += 1
     # Check if the number of audit files in the fixed_main_exec version matches the original project
     if n_existing_fixed_main_exec_audit_files == n_existing_audit_files:
         print(colored("Found the same number of audit files", "green"))
