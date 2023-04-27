@@ -221,9 +221,9 @@ class ProjectTestInfo:
                 return "Presentation" in rows[1][0] and "Exam" in rows[2][0] and all("Test" in row[0] for row in rows[3:])
             if len(rows) == 2*self.n_test_cases+3:
                 self.n_test_cases *= 2
-                return "Presentation" in rows[1][0] and "Exam" in rows[2][0] and all("Test" in row[0] for row in rows[3:8]) and all("fixed_main_exec" in row[0] for row in rows[8:])
+                return "Presentation" in rows[1][0] and "Exam" in rows[2][0] and all("Test" in row[0] for row in rows[3:3+self.n_test_cases]) and all("fixed_main_exec" in row[0] for row in rows[3+self.n_test_cases:])
         except Exception as e:
-            print(colored(f"Cannot regognize row format in {self.project}\n{rows}\n{type(e)}\n{e.args}\n{e}", "red"))
+            print(colored(f"{type(e)}\n{e.args}\n{e}", "red"))
         return False
             
         
@@ -238,9 +238,9 @@ class ProjectTestInfo:
         Returns:
             None
         """
-
         # Check the row format
         if not self.__check_rows_format(rows):
+            print(colored(f"Cannot regognize row format in {self.project}\n{rows}", "red"))
             return
         # Setup self.test_info if this is the first submission
         if not len(self.test_info):
@@ -263,7 +263,6 @@ class ProjectTestInfo:
         Returns:
             List[list[str]]: A list of lists of strings representing the test information of the project.
         """
-
         out = []
         for test in self.test_info:
             test.compute_indicators()
