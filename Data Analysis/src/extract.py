@@ -104,8 +104,8 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
             # Create a dictionary to store the data
             scoreboard_data: Dict[str, str] = {}
             # Open the original CSV file for reading and the new CSV file for writing
-            with open(scoreboard_path, mode='r') as scoreboard: # read content from csv
-                with open(new_scoreboard_path, mode='w') as new_scoreboard: # write content to csv
+            with open(scoreboard_path, mode='r') as scoreboard: # read content from CSV
+                with open(new_scoreboard_path, mode='w') as new_scoreboard: # write content to CSV
                     # Create a CSV writer for the new file
                     writer = csv.writer(new_scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
                     # Create a CSV reader for the old file
@@ -208,7 +208,6 @@ def __get_scores_for_export(project_name : str) -> dict:
     course_prefix = course_prefix[0]
     year = year[0]
     module_number = module_number[0][2]
-
     # Construct path to scoreboard file
     scoreboard_file = os.path.join(bookkeeping.SOURCE_DIRECTORY, course_prefix + "_" + year + "_" + "Scoreboard.csv")
     # Read scores from CSV file
@@ -228,6 +227,7 @@ def __get_scores_for_export(project_name : str) -> dict:
             score = re.findall("1|0\.5|0", row[row_index])
             anonymized_student_code = __get_gibberish_string_for_student(row[name_index])
             scores[anonymized_student_code] = [float(score[0]), 1.0] if score else [-1.0, 1.0]
+            # The grade may also be -1.0, which means that the student missed the appointment
             # TODO: Implement Treatment of Exam Result
     return scores
 
@@ -460,7 +460,7 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
 
 
 
-def one_csv_to_rule_them_all():
+def one_csv_to_rule_them_all() -> str:
     # Create an empty list to store the rows from all CSV files
     all_rows = [test_info.CSV_HEADER]
     # Loop through all exported projects
@@ -485,9 +485,10 @@ def one_csv_to_rule_them_all():
         for row in project_test_info.finalize():
             all_rows.append(row)
         print(colored(f"Done: {project}", "green"))
-    output_file = os.path.join(bookkeeping.TARGET_DIRECTORY, f"out_{time.time()}.csv")
+    output_file = os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv")
     # Write the combined rows to the output file
     with open(output_file, "w", newline="") as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         writer.writerows(all_rows)
     print(colored(f"Successfully combined information on {len(all_rows)-1} test cases from CSV files in {bookkeeping.TARGET_DIRECTORY} into {output_file}", "green"))
+    return output_file
