@@ -1,3 +1,4 @@
+from enum import Enum
 from termcolor import colored # for printing funny colored text
 
 CSV_HEADER = ["Project", "Test", "Submissions", 
@@ -21,6 +22,8 @@ CSV_HEADER = ["Project", "Test", "Submissions",
               "Recall (Exam Results)", # (true positives)/(true positives + false negatives) (according to exam results)
               "Precision (Exam Results)" # (true positives)/(true positives + true negatives) (according to exam results)
             ]
+
+Score_Metric = Enum("Score_Metric", ["PRESENTATION", "EXAM"])
 
 class TestInfo:
     
