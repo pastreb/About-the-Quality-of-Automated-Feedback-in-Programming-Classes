@@ -367,8 +367,8 @@ def extract_project(project_name : str) -> None:
     # Print results
     print(f"Successfully moved and renamed files from {n_students} students", end=' ')
     # Print info on number of found audit (test result) files
-    if n_students == n_existing_audit_files: 
-        print(colored(f"{str(n_existing_audit_files)}/{str(n_students)} audit file(s)", "green"))
+    if n_students * 0.95 <= n_existing_audit_files: 
+        print(colored(f"{str(n_existing_audit_files)}/{str(n_students)} audit file(s)", "green")) # at least 95% of audit files are present
     elif n_existing_audit_files >= n_students/2:
         print(colored(f"{str(n_existing_audit_files)}/{str(n_students)} audit file(s)", "yellow"))
     else:
