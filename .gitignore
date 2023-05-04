@@ -6,9 +6,13 @@ Data Analysis/data/processed_student_data/*
 
 # Include sample data:
 !Data Analysis/data/raw_student_data/SAMPLE_2023_M_1_Testprogramm/ 
-!Data Analysis/data/raw_student_data/SAMPLE_2023_M_1_Testprogramm/SAMPLE_2023_Scoreboard.csv
+!Data Analysis/data/raw_student_data/SAMPLE_2023_Scoreboard.csv
 !Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm/
 !Data Analysis/data/processed_student_data/sample_out.csv
+!Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm_plot_counts_presentation_relative.eps
+!Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm_plot_counts_presentation_relative.png
+!Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm_plot_scores_presentation_relative.eps
+!Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Testprogramm_plot_scores_presentation_relative.png
 
 Data Analysis/venv/*
 *.pyc
