@@ -36,7 +36,7 @@ def __read_csv(file_name : str) -> pd.DataFrame:
     if len(header) != len(ti.CSV_HEADER) or False in [(header[i] == ti.CSV_HEADER[i]) for i in range(len(header))]:
         exit(colored(f"CSV header seems to be corrupted:\n {header}\n vs.\n {ti.CSV_HEADER}", "red"))
     # Rename fixed_main_exec
-    data_frame["Test"] = data_frame["Test"].str.replace("fixed_main_exec", "*")
+    data_frame["Test"] = data_frame["Test"].str.replace("fixed_main_exec", "fme")
     # Make/check MultiIndex
     data_frame.set_index(["Project", "Test"], inplace=True)
     if "Project" not in data_frame.index.names or "Test" not in data_frame.index.names:
@@ -44,16 +44,19 @@ def __read_csv(file_name : str) -> pd.DataFrame:
     read_csvs[file_name] = data_frame
     return data_frame
 
-def __get_project_data(project_name : str, csv_file_name : str, relative_ratios : bool = True):
-    data = __read_csv(csv_file_name).loc[project_name]
+def __get_project_data(project_name : list, csv_file_name : str, relative_ratios : bool = True):
+    if len(project_name) == 1:
+        data = __read_csv(csv_file_name).loc[project_name[0]]
+    else:
+        data = __read_csv(csv_file_name).loc[project_name]
     for col in data.columns.values:
         if relative_ratios and (col in ti.CSV_PS_COUNTS or col in ti.CSV_ER_COUNTS):
             data[col] = data[col]/data["Submissions"]
     return data
 
-def __plot_project(project_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> None:
-    data = __get_project_data(project_name, csv_file_name, relative_ratios)
-    data.drop([test for test in data.index.values if ("fixed_main_exec" in test) or include_fixed_main_exec])
+def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> None:
+    data = __get_project_data([project_name], csv_file_name, relative_ratios)
+    data.drop([test for test in data.index.values if ("fme" in test) or not include_fixed_main_exec])
     # Prepare plot_name
     score_metric_string = "_presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_relative" if relative_ratios else "_absolute"
@@ -71,14 +74,25 @@ def __plot_project(project_name : str, csv_file_name : str, score_metric : ti.Sc
     plot_name = f"{project_name}_plot_scores{score_metric_string}{ratio_type_string}{fm_string}"
     __plot_tests_vs_students(score_data, project_name, [PURPLE, NEON, BROWN], plot_name)
 
-def plot_projects_against_each_other(project_1_name : str, project_2_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> None:
-    pass
+def plot_projects_against_each_other(project_1_name : str, project_2_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
+    data = __get_project_data([project_1_name, project_2_name], csv_file_name, relative_ratios)
+    data = data.drop([test_in_project for test_in_project in data.index.values if ("fme" in test_in_project[1])])
+    # Prepare plot_name
+    score_metric_string = "_presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_exam" if score_metric == ti.Score_Metric.EXAM else ""
+    ratio_type_string = "_relative" if relative_ratios else "_absolute"
+    # First plot
+    count_data = data[ti.CSV_PS_COUNTS] if score_metric == ti.Score_Metric.PRESENTATION else data[ti.CSV_ER_COUNTS] if score_metric == ti.Score_Metric.EXAM else data
+    for col in count_data.columns.values:
+        count_data = count_data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
+    count_data = count_data.sort_values("Test")
+    plot_name = f"{project_1_name}_vs_{project_2_name}_plot_counts{score_metric_string}{ratio_type_string}"
+    __plot_tests_vs_students(count_data, f"{project_1_name} vs {project_2_name}", [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
 
 def __plot_module(module_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> None:
     pass
 
 def __plot_tests_vs_students(data, title, colors, name):
-    data.plot(kind="bar", figsize=(15, 10), color=colors)
+    data.plot(kind="bar", figsize=(16, 16), color=colors)
     plt.title(title)
     plt.xlabel("Test-Cases")
     plt.ylabel("% of students")
