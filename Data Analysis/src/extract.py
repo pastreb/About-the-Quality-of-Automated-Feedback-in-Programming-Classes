@@ -198,7 +198,7 @@ def __get_scores_for_export(project_name : str) -> dict:
     """
     
     # Extract course prefix, year, and module number from the project name
-    course_prefix = re.findall(str(bookkeeping.COURSE_PERFIXES).replace(", ", "|").replace("'", "")[1:-1], project_name)
+    course_prefix = re.findall(str(bookkeeping.COURSE_PREFIXES).replace(", ", "|").replace("'", "")[1:-1], project_name)
     year = re.findall(str(bookkeeping.YEARS).replace(", ", "|").replace("'", "")[1:-1], project_name)
     module_number = re.findall("M_\d", project_name)
     # Check that all required components are present
@@ -292,7 +292,7 @@ def extract_project(project_name : str) -> None:
         project_name (str): Name of the project to extract
     
     Returns:
-        None
+        None: The function only extracts the project.
     """
 
     # Setup paths
@@ -440,7 +440,7 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
         exclude (list): A list of project names. Projects in this list will be excluded from the extraction.
     
     Returns:
-        None
+        None: The function only extracts the projects.
     """
 
     # If include is not provided, extract all projects that are not in exclude
@@ -461,6 +461,14 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
 
 
 def one_csv_to_rule_them_all() -> str:
+
+    """
+    Combines data from multiple CSV files in bookkeeping.TARGET_DIRECTORY into a single output file.
+
+    Returns:
+        A string representing the path to the output file.
+    """
+
     # Create an empty list to store the rows from all CSV files
     all_rows = [test_info.CSV_HEADER]
     # Loop through all exported projects
@@ -481,14 +489,18 @@ def one_csv_to_rule_them_all() -> str:
                 csv_reader = csv.reader(csv_file)
                 for row in csv_reader:
                     rows.append(row)
+            # Add the rows to the project test info
             project_test_info.add_submission(rows)
+        # Finalize the project test info and add the rows to the all_rows list
         for row in project_test_info.finalize():
             all_rows.append(row)
         print(colored(f"Done: {project}", "green"))
+    # Define the output file path
     output_file = os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv")
     # Write the combined rows to the output file
     with open(output_file, "w", newline="") as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         writer.writerows(all_rows)
+    # Print success message and return the output file path
     print(colored(f"Successfully combined information on {len(all_rows)-1} test cases from CSV files in {bookkeeping.TARGET_DIRECTORY} into {output_file}", "green"))
     return output_file
