@@ -1,26 +1,48 @@
 from enum import Enum
 from termcolor import colored # for printing funny colored text
 
+CSV_TP_PS = "True Positives (Presentation Score)"
+CSV_FP_PS = "False Positives (Presentation Score)"
+CSV_TN_PS = "True Negatives (Presentation Score)"
+CSV_FN_PS = "False Negatives (Presentation Score)"
+CSV_PS_COUNTS = [CSV_TP_PS, CSV_FP_PS, CSV_TN_PS, CSV_FN_PS]
+
+CSV_A_PS = "Accuracy (Presentation Score)"
+CSV_R_PS = "Recall (Presentation Score)"
+CSV_P_PS = "Precision (Presentation Score)"
+CSV_PS_SCORES = [CSV_A_PS, CSV_R_PS, CSV_P_PS]
+
+CSV_TP_ER = "True Positives (Exam Results)"
+CSV_FP_ER = "False Positives (Exam Results)"
+CSV_TN_ER = "True Negatives (Exam Results)"
+CSV_FN_ER = "False Negatives (Exam Results)"
+CSV_ER_COUNTS = [CSV_TP_ER, CSV_FP_ER, CSV_TN_ER, CSV_FN_ER]
+
+CSV_A_ER = "Accuracy (Exam Results)"
+CSV_R_ER = "Recall (Exam Results)"
+CSV_P_ER = "Precision (Exam Results)"
+CSV_ER_SCORES = [CSV_A_ER, CSV_R_ER, CSV_P_ER]
+
 CSV_HEADER = ["Project", "Test", "Submissions", 
               "Successes", "Fails", "Errors", "Skips", 
               
-              "True Positives (Presentation Score)", # test successful, student strong (according to presentation score)
-              "False Positives (Presentation Score)", # test successful, student weak (according to presentation score)
-              "True Negatives (Presentation Score)", # test unsuccessful, student weak (according to presentation score)
-              "False Negatives (Presentation Score)", # test unsuccesful, student strong (according to presentation score)
+              CSV_TP_PS, # test successful, student strong (according to presentation score)
+              CSV_FP_PS, # test successful, student weak (according to presentation score)
+              CSV_TN_PS, # test unsuccessful, student weak (according to presentation score)
+              CSV_FN_PS, # test unsuccesful, student strong (according to presentation score)
               
-              "Accuracy (Presentation Score)", # (true positives + true negatives)/submissions (according to presentation score)
-              "Recall (Presentation Score)", # (true positives)/(true positives + false negatives) (according to presentation score)
-              "Precision (Presentation Score)", # (true positives)/(true positives + true negatives) (according to presentation score)
+              CSV_A_PS, # (true positives + true negatives)/submissions (according to presentation score)
+              CSV_R_PS, # (true positives)/(true positives + false negatives) (according to presentation score)
+              CSV_P_PS, # (true positives)/(true positives + true negatives) (according to presentation score)
 
-              "True Positives (Exam Results)", # test successful, student strong (according to exam results)
-              "False Positives (Exam Results)", # test successful, student weak (according to exam results)
-              "True Negatives (Exam Results)", # test unsuccessful, student weak (according to exam results)
-              "False Negatives (Exam Results)", # test unsuccesful, student strong (according to exam results)
+              CSV_TP_ER, # test successful, student strong (according to exam results)
+              CSV_FP_ER, # test successful, student weak (according to exam results)
+              CSV_TN_ER, # test unsuccessful, student weak (according to exam results)
+              CSV_FN_ER, # test unsuccesful, student strong (according to exam results)
               
-              "Accuracy (Exam Results)", # (true positives + true negatives)/submissions (according to exam results)
-              "Recall (Exam Results)", # (true positives)/(true positives + false negatives) (according to exam results)
-              "Precision (Exam Results)" # (true positives)/(true positives + true negatives) (according to exam results)
+              CSV_A_ER, # (true positives + true negatives)/submissions (according to exam results)
+              CSV_R_ER, # (true positives)/(true positives + false negatives) (according to exam results)
+              CSV_P_ER # (true positives)/(true positives + true negatives) (according to exam results)
             ]
 
 Score_Metric = Enum("Score_Metric", ["PRESENTATION", "EXAM"])
