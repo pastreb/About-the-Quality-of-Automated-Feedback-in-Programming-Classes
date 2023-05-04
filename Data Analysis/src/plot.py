@@ -55,6 +55,8 @@ def __get_project_data(project_names : list, csv_file_name : str, relative_ratio
         # Rename fixed_main_exec
         data_frame["Test"] = data_frame["Test"].str.replace("fixed_main_exec", "fme")
     data_frame = data_frame.loc[data_frame["Project"].isin(project_names)]
+    if data_frame.empty:
+        exit(colored(f"DataFrame for project(s) {project_names} is empty\n {data_frame}", "red"))
     # Change absolute counts to relative ratios (if specified so)
     if relative_ratios:
         for col in (ti.CSV_PS_COUNTS + ti.CSV_ER_COUNTS):
