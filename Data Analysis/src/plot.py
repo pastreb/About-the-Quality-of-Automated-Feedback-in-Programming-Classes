@@ -142,8 +142,7 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
     fm_string = "_with_fixed_main_exec" if include_fixed_main_exec else ""
     plot_name = f"{__clean_project_name(project_name)}_Plot_Counts{score_metric_string}{ratio_type_string}{fm_string}"
-    # First plot    
-    print(count_data)
+    # First plot
     __plot_tests_vs_students(count_data, project_name, [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
     # Get data into shape for first plot (with scores, e.g. "Accuracy")
     if score_metric == ti.Score_Metric.PRESENTATION:
