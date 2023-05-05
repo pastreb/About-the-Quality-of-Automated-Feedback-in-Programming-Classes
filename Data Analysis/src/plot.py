@@ -230,9 +230,9 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
     data = __get_project_data(module, csv_file_name, relative_ratios)
     # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
-        data = data[list(set(ti.CSV_PS_COUNTS) | set(ti.CSV_PS_SCORES))]
+        data = data[ti.CSV_PS_COUNTS + ti.CSV_PS_SCORES]
     elif score_metric == ti.Score_Metric.EXAM:
-        data = data[list(set(ti.CSV_ER_COUNTS) | set(ti.CSV_ER_SCORES))]
+        data = data[ti.CSV_ER_COUNTS + ti.CSV_ER_SCORES]
     else:
         data = data
     for col in data.columns.values:
