@@ -5,7 +5,7 @@ CSV_TP_PS = "True Positives (Presentation Score)"
 CSV_FP_PS = "False Positives (Presentation Score)"
 CSV_TN_PS = "True Negatives (Presentation Score)"
 CSV_FN_PS = "False Negatives (Presentation Score)"
-CSV_PS_COUNTS = [CSV_TP_PS, CSV_FP_PS, CSV_TN_PS, CSV_FN_PS]
+CSV_PS_COUNTS = [CSV_TP_PS, CSV_FP_PS, CSV_TN_PS, CSV_FN_PS, "Errors"]
 
 CSV_A_PS = "Accuracy (Presentation Score)"
 CSV_R_PS = "Recall (Presentation Score)"
@@ -16,7 +16,7 @@ CSV_TP_ER = "True Positives (Exam Results)"
 CSV_FP_ER = "False Positives (Exam Results)"
 CSV_TN_ER = "True Negatives (Exam Results)"
 CSV_FN_ER = "False Negatives (Exam Results)"
-CSV_ER_COUNTS = [CSV_TP_ER, CSV_FP_ER, CSV_TN_ER, CSV_FN_ER]
+CSV_ER_COUNTS = [CSV_TP_ER, CSV_FP_ER, CSV_TN_ER, CSV_FN_ER, "Errors"]
 
 CSV_A_ER = "Accuracy (Exam Results)"
 CSV_R_ER = "Recall (Exam Results)"
