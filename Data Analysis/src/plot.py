@@ -84,7 +84,7 @@ def __get_project_data(project_names : list, csv_file_name : str, relative_ratio
         exit(colored(f"DataFrame for project(s) {project_names} is empty\n {data_frame}", "red"))
     # Convert absolute counts to relative ratios (if specified)
     if relative_ratios:
-        for col in (ti.CSV_PS_COUNTS + ti.CSV_ER_COUNTS):
+        for col in (list(set(ti.CSV_PS_COUNTS) | set(ti.CSV_ER_COUNTS))):
             data_frame[col] = data_frame[col]/data_frame["Submissions"]
     return data_frame
 
@@ -143,6 +143,7 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
     fm_string = "_with_fixed_main_exec" if include_fixed_main_exec else ""
     plot_name = f"{__clean_project_name(project_name)}_Plot_Counts{score_metric_string}{ratio_type_string}{fm_string}"
     # First plot    
+    print(count_data)
     __plot_tests_vs_students(count_data, project_name, [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
     # Get data into shape for first plot (with scores, e.g. "Accuracy")
     if score_metric == ti.Score_Metric.PRESENTATION:
@@ -230,9 +231,9 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
     data = __get_project_data(module, csv_file_name, relative_ratios)
     # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
-        data = data[ti.CSV_PS_COUNTS + ti.CSV_PS_SCORES]
+        data = data[list(set(ti.CSV_PS_COUNTS) | set(ti.CSV_PS_SCORES))]
     elif score_metric == ti.Score_Metric.EXAM:
-        data = data[ti.CSV_ER_COUNTS + ti.CSV_ER_SCORES]
+        data = data[list(set(ti.CSV_ER_COUNTS) | set(ti.CSV_ER_SCORES))]
     else:
         data = data
     for col in data.columns.values:
