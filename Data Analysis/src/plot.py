@@ -127,7 +127,6 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
 
     # Get data
     data = __get_project_data([project_name], csv_file_name, relative_ratios, include_fixed_main_exec)
-    data = data.sort_values("Test")
     data = data.set_index("Test")
     # Get data into shape for first plot (with counts, e.g. "True Positives")
     if score_metric == ti.Score_Metric.PRESENTATION:
