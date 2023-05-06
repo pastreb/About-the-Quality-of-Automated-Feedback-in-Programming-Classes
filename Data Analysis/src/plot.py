@@ -127,6 +127,9 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
 
     # Get data
     data = __get_project_data([project_name], csv_file_name, relative_ratios, include_fixed_main_exec)
+    if include_fixed_main_exec:
+        # Have original and fixed_main_exec versions of tests next to each other 
+        data = data.sort_values("Test")
     data = data.set_index("Test")
     # Get data into shape for first plot (with counts, e.g. "True Positives")
     if score_metric == ti.Score_Metric.PRESENTATION:
@@ -271,4 +274,4 @@ def __plot_tests_vs_students(data : pd.DataFrame, title : str, colors : list, na
     plt.savefig(os.path.join(bookkeeping.TARGET_DIRECTORY, f"{name}.svg"), format="svg")
     plt.savefig(os.path.join(bookkeeping.TARGET_DIRECTORY, f"{name}.png"), format="png")
     print(colored(f"Successfully created Plot {name}", "green"))
-    plt.cla()
+    plt.close()

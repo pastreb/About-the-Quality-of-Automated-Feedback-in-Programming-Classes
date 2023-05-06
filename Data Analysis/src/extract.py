@@ -352,7 +352,8 @@ def extract_project(project_name : str) -> None:
             reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
             i = 0
             for row in reader:
-                rows.append([f"Test {i+1}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+                test_number = f"0{i+1}" if i < 10 else f"{i+1}"
+                rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
                 i += 1
         # Write to new audit file
         dest = os.path.join(target_path,  f"{anonymized_student_code}_testresults.csv")
