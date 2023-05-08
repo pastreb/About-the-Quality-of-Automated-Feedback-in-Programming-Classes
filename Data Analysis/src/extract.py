@@ -55,7 +55,7 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
     
     # A dictionary that maps the username to the corresponding student code
     id_to_student_code: Dict[str, str] = {}
-    # Iterate through all the directories in the SOURCE_DIRECTORY
+    # Iterate through all the directories in bookkeeping.SOURCE_DIRECTORY
     for project in os.listdir(bookkeeping.SOURCE_DIRECTORY):
         project_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project)
         if os.path.isdir(project_path):
@@ -137,7 +137,7 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                                 if i != name_index and len(row[i]) != 0:
                                     if len(old_row[i]) == 0:
                                         old_row[i] = row[i]
-                                    else:
+                                    elif old_row[i] != row[i]:
                                         print(colored(f"Duplicated data for {header[i]} in {scoreboard_file}: {old_row[i]} vs. {row[i]}", "yellow"))
                             # Update the scoreboard data dictionary with the merged row
                             scoreboard_data[row[name_index]] = old_row
@@ -188,7 +188,6 @@ def __get_scores_for_export(project_name : str) -> dict:
     Finds the Scoreboard-file in bookkeeping.SOURCE_DIRECTORY corresponding to `project_name`.
     Returns a dictionary with entries of the form (anonymized student, [presentation score, exam result])
     (e.g. ("abcdef", [1.0, 1.0])).
-    TODO: Describe Encoding
 
     Args:
         project_name (str): The name of the project to retrieve scores for.
@@ -217,18 +216,21 @@ def __get_scores_for_export(project_name : str) -> dict:
         reader = csv.reader(scoreboard, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         # Find indices for the username and score columns
         header = next(reader)
+        if "Username" not in header or f"Modul {module_number}" not in header or "Exam" not in header:
+            print(colored(f"Corrupted Scoreboard CSV header\n{header}"), "red")
+            return {}
         name_index = header.index("Username")
-        row_index = header.index(f"Modul {module_number}")
+        presentation_index = header.index(f"Modul {module_number}")
+        exam_index = header.index("Exam")
         for row in reader:
-            # Skip LTI Accounts
-            if "LTI" in row[name_index]: 
-                continue
             # Extract score
-            score = re.findall("1|0\.5|0", row[row_index])
+            presentation_score = re.findall("1|0\.5|0", row[presentation_index])
+            exam_score = re.findall("\d*\.\d*", row[exam_index])
+            # Unpack regex results
+            presentation_score = float(presentation_score[0]) if presentation_score else 0.0
+            exam_score = float(exam_score[0]) if exam_score else 0.0
             anonymized_student_code = __get_gibberish_string_for_student(row[name_index])
-            scores[anonymized_student_code] = [float(score[0]), 1.0] if score else [-1.0, 1.0]
-            # The grade may also be -1.0, which means that the student missed the appointment
-            # TODO: Implement Treatment of Exam Result
+            scores[anonymized_student_code] = [presentation_score, exam_score]
     return scores
 
 
@@ -476,6 +478,9 @@ def one_csv_to_rule_them_all() -> str:
     print("I will now collect the project data from the CSV files")
     for project in os.listdir(bookkeeping.TARGET_DIRECTORY):
         project_path = os.path.join(bookkeeping.TARGET_DIRECTORY, project)
+        # Check if actually is a project
+        if not os.path.isdir(project_path):
+            continue
         project_test_info = test_info.ProjectTestInfo(project)
         # Loop through all files in the projects
         for file in os.listdir(project_path):
@@ -498,6 +503,12 @@ def one_csv_to_rule_them_all() -> str:
         print(colored(f"Done: {project}", "green"))
     # Define the output file path
     output_file = os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv")
+    if os.path.exists(output_file):
+        try:
+            # Delete the file
+            os.remove(output_file)
+        except Exception as e:
+            exit(colored(f"Failed to delete file\n{type(e)}\n{e.args}\n{e}", "red"))
     # Write the combined rows to the output file
     with open(output_file, "w", newline="") as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')

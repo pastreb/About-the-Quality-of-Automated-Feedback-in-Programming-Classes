@@ -135,13 +135,13 @@ class TestInfo:
             self.successes += 1
             if presentation_score == 1.0: self.t_p_p += 1 
             else: self.f_p_p += 1
-            if exam_result == 1.0: self.t_p_e += 1 
+            if exam_result >= 0.6: self.t_p_e += 1 
             else: self.f_p_e += 1
         elif "Fail" in result:
             self.fails += 1
             if presentation_score == 1.0: self.f_n_p += 1 
             else: self.t_n_p += 1
-            if exam_result == 1.0: self.f_n_e += 1 
+            if exam_result >= 0.6: self.f_n_e += 1 
             else: self.t_n_e += 1
         elif "Error" in result: self.errors += 1
         elif "Skip" in result: self.skips += 1
@@ -165,8 +165,8 @@ class TestInfo:
         self.precision_p = self.t_p_p/(self.t_p_p + self.f_p_p) if self.t_p_p + self.f_p_p > 0 else 0
         # Calculate indicators based on exam result
         self.accuracy_e = (self.t_p_e + self.t_n_e)/self.submissions if self.submissions > 0 else 0
-        self.recall_e = self.t_p_e/(self.t_p_e + self.f_n_e) if self.t_p_p + self.f_n_p > 0 else 0
-        self.precision_e = self.t_p_e/(self.t_p_e + self.f_p_e) if self.t_p_p + self.f_p_p > 0 else 0
+        self.recall_e = self.t_p_e/(self.t_p_e + self.f_n_e) if self.t_p_e + self.f_n_e > 0 else 0
+        self.precision_e = self.t_p_e/(self.t_p_e + self.f_p_e) if self.t_p_e + self.f_p_e > 0 else 0
 
     def make_row(self) -> list[str]:
 

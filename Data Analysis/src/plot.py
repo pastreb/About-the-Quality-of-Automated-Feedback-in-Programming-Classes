@@ -19,6 +19,33 @@ PURPLE = (0.667, 0.263, 0.443)
 NEON = (0.800, 1.000, 0.000)
 BROWN = (0.918, 0.714, 0.306)
 
+def clear_plots() -> None:
+
+    """
+    Removes all the .png and .svg files present in the directory specified by bookkeeping.TARGET_DIRECTORY.
+
+    If bookkeeping.TARGET_DIRECTORY does not exist, then this function does nothing.
+
+    Raises:
+        Exception: If any file can not be deleted, an exception will be raised and the program will exit.
+
+    Returns:
+        None
+    """
+
+    if not os.path.exists(bookkeeping.TARGET_DIRECTORY):
+        return
+    # Iterate through all the directories in bookkeeping.TARGET_DIRECTORY
+    for file in os.listdir(bookkeeping.TARGET_DIRECTORY):
+        file_path = os.path.join(bookkeeping.TARGET_DIRECTORY, file)
+        # Delete the file if it is a .png or .svg file
+        if os.path.isfile(file_path) and (file.endswith(".png") or file.endswith(".svg")):
+            try:
+                # Delete the file
+                os.remove(file_path)
+            except Exception as e:
+                exit(colored(f"Failed to delete file\n{type(e)}\n{e.args}\n{e}", "red"))
+
 # Define a global dictionary to cache already loaded CSV files
 read_csvs = {}
 
@@ -138,8 +165,6 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
         count_data = data[ti.CSV_ER_COUNTS]
     else:
         count_data = data
-    for col in count_data.columns.values:
-        count_data = count_data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
     # Prepare first plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
@@ -154,8 +179,6 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
         score_data = data[ti.CSV_ER_SCORES]
     else:
         score_data = data
-    for col in score_data.columns.values:
-        score_data = score_data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
     # Second plot
     plot_name = f"{__clean_project_name(project_name)}_Plot_Scores{score_metric_string}{ratio_type_string}{fm_string}"
     __plot_tests_vs_students(score_data, project_name, [PURPLE, NEON, BROWN], plot_name)
@@ -190,8 +213,6 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
         count_data = data[ti.CSV_ER_COUNTS]
     else:
         count_data = data
-    for col in count_data.columns.values:
-        count_data = count_data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
     # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
@@ -205,8 +226,6 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
         score_data = data[ti.CSV_ER_SCORES]
     else:
         score_data = data
-    for col in score_data.columns.values:
-        score_data = score_data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
     # Second plot
     plot_name = f"{__clean_project_name(project_1_name)}_vs_{__clean_project_name(project_2_name)}_Plot_Sounts{score_metric_string}{ratio_type_string}"
     __plot_tests_vs_students(count_data, f"{project_1_name} vs {project_2_name}", [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
@@ -238,8 +257,6 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
         data = data[ti.CSV_ER_COUNTS + ti.CSV_ER_SCORES]
     else:
         data = data
-    for col in data.columns.values:
-        data = data.rename(columns={col : col.replace(" (Presentation Score)", "").replace(" (Exam Result)", "")})
     data = data.mean()
     # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
