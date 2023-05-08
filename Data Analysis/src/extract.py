@@ -3,7 +3,6 @@ import json
 import os
 import random
 import re # regex
-import time
 import shutil # moving files through directories
 import string
 
@@ -182,18 +181,18 @@ def __get_gibberish_string_for_student(student_code : str, len : int = 6) -> str
 
 
 
-def __get_scores_for_export(project_name : str) -> dict:
+def __get_scores_for_export(project_name : str) -> Dict[str, list]:
 
     """
-    Finds the Scoreboard-file in bookkeeping.SOURCE_DIRECTORY corresponding to `project_name`.
+    Finds the Scoreboard-file in bookkeeping.SOURCE_DIRECTORY corresponding to the given `project_name`.
     Returns a dictionary with entries of the form (anonymized student, [presentation score, exam result])
-    (e.g. ("abcdef", [1.0, 1.0])).
+    (e.g. ("abcdef", [1.0, 0.42])).
 
     Args:
         project_name (str): The name of the project to retrieve scores for.
 
     Returns:
-        dict: A dictionary mapping anonymized student codes to their corresponding scores.
+        Dict[str, list]: A dictionary mapping anonymized student codes to their corresponding scores.
     """
     
     # Extract course prefix, year, and module number from the project name
@@ -259,7 +258,7 @@ def __find_student_code(path_to_student_project : str) -> str:
         return ""
     if "LTI" in student_code_with_surroundings:
         # In some cases, the folder is named after the LTI account that the student used (e.g. exam environment).
-        # In such cases, we need a different way to find the student code. # TODO
+        # In such cases, we need a different way to find the student code.
         parent_dir = os.path.join(path_to_student_project, "..")
         for file_name in os.listdir(parent_dir):
             if file_name.startswith("details") and file_name.endswith(".json"):
@@ -433,7 +432,7 @@ def extract_project(project_name : str) -> None:
 
 
 
-def extract_projects(include : list = [], exclude : list = []) -> None:
+def extract_projects(include : list[str] = [], exclude : list[str] = []) -> None:
 
     """
     Extracts projects from the bookkeeping.SOURCE_DIRECTORY.
