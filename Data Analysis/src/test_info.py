@@ -1,11 +1,13 @@
 from enum import Enum
 from termcolor import colored # for printing funny colored text
 
+CSV_ERRORS = "Errors"
+
 CSV_TP_PS = "True Positives (Presentation Score)"
 CSV_FP_PS = "False Positives (Presentation Score)"
 CSV_TN_PS = "True Negatives (Presentation Score)"
 CSV_FN_PS = "False Negatives (Presentation Score)"
-CSV_PS_COUNTS = [CSV_TP_PS, CSV_FP_PS, CSV_TN_PS, CSV_FN_PS, "Errors"]
+CSV_PS_COUNTS = [CSV_TP_PS, CSV_TN_PS, CSV_FP_PS, CSV_FN_PS, CSV_ERRORS]
 
 CSV_A_PS = "Accuracy (Presentation Score)"
 CSV_R_PS = "Recall (Presentation Score)"
@@ -16,7 +18,7 @@ CSV_TP_ER = "True Positives (Exam Results)"
 CSV_FP_ER = "False Positives (Exam Results)"
 CSV_TN_ER = "True Negatives (Exam Results)"
 CSV_FN_ER = "False Negatives (Exam Results)"
-CSV_ER_COUNTS = [CSV_TP_ER, CSV_FP_ER, CSV_TN_ER, CSV_FN_ER, "Errors"]
+CSV_ER_COUNTS = [CSV_TP_ER, CSV_TN_ER, CSV_FP_ER, CSV_FN_ER, CSV_ERRORS]
 
 CSV_A_ER = "Accuracy (Exam Results)"
 CSV_R_ER = "Recall (Exam Results)"
@@ -24,7 +26,7 @@ CSV_P_ER = "Precision (Exam Results)"
 CSV_ER_SCORES = [CSV_A_ER, CSV_R_ER, CSV_P_ER]
 
 CSV_HEADER = ["Project", "Test", "Submissions", 
-              "Successes", "Fails", "Errors", "Skips", 
+              "Successes", "Fails", CSV_ERRORS, "Skips", 
               
               CSV_TP_PS, # test successful, student strong (according to presentation score)
               CSV_FP_PS, # test successful, student weak (according to presentation score)
