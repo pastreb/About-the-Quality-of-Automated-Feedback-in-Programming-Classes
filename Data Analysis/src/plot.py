@@ -4,6 +4,7 @@ from termcolor import colored # for printing funny colored text
 
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
+import matplotlib
 import matplotlib.pyplot as plt
 
 import bookkeeping
@@ -18,6 +19,24 @@ BLACK = (0.750, 0.750, 0.750)
 PURPLE = (0.667, 0.263, 0.443)
 NEON = (0.800, 1.000, 0.000)
 BROWN = (0.918, 0.714, 0.306)
+
+colors = {
+         ti.CSV_TP_PS: GREEN, 
+         ti.CSV_FP_PS: RED,
+         ti.CSV_TN_PS: BLUE,
+         ti.CSV_FN_PS: ORANGE,
+         ti.CSV_A_PS: PURPLE,
+         ti.CSV_R_PS: NEON,
+         ti.CSV_P_PS: BROWN,
+         ti.CSV_TP_ER: GREEN, 
+         ti.CSV_FP_ER: RED,
+         ti.CSV_TN_ER: BLUE,
+         ti.CSV_FN_ER: ORANGE,
+         ti.CSV_A_ER: PURPLE,
+         ti.CSV_R_ER: NEON,
+         ti.CSV_P_ER: BROWN,
+         ti.CSV_ERRORS : BLACK
+         }
 
 def clear_plots() -> None:
 
@@ -158,30 +177,20 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
         # Have original and fixed_main_exec versions of tests next to each other 
         data = data.sort_values("Test")
     data = data.set_index("Test")
-    # Get data into shape for first plot (with counts, e.g. "True Positives")
+    # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
         count_data = data[ti.CSV_PS_COUNTS]
+        score_data = data[ti.CSV_PS_SCORES]
     elif score_metric == ti.Score_Metric.EXAM:
         count_data = data[ti.CSV_ER_COUNTS]
-    else:
-        count_data = data
-    # Prepare first plot name
+        score_data = data[ti.CSV_ER_SCORES]
+    # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
     fm_string = "_with_fixed_main_exec" if include_fixed_main_exec else ""
-    plot_name = f"{__clean_project_name(project_name)}_Plot_Counts{score_metric_string}{ratio_type_string}{fm_string}"
-    # First plot
-    __plot_tests_vs_students(count_data, project_name, [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
-    # Get data into shape for first plot (with scores, e.g. "Accuracy")
-    if score_metric == ti.Score_Metric.PRESENTATION:
-        score_data = data[ti.CSV_PS_SCORES]
-    elif score_metric == ti.Score_Metric.EXAM:
-        score_data = data[ti.CSV_ER_SCORES]
-    else:
-        score_data = data
-    # Second plot
-    plot_name = f"{__clean_project_name(project_name)}_Plot_Scores{score_metric_string}{ratio_type_string}{fm_string}"
-    __plot_tests_vs_students(score_data, project_name, [PURPLE, NEON, BROWN], plot_name)
+    plot_name = f"{__clean_project_name(project_name)}_Plot{score_metric_string}{ratio_type_string}{fm_string}"
+    # Plot
+    __plot_bar(count_data, score_data, project_name, plot_name)
 
 
 
@@ -206,29 +215,19 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
     data = data.sort_values("Test")
     data["Project"] = data["Project"].apply(__clean_project_name)
     data = data.set_index(["Project", "Test"])
-    # Get data into shape for first plot (with counts, e.g. "True Positives")
+    # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
         count_data = data[ti.CSV_PS_COUNTS]
+        score_data = data[ti.CSV_PS_SCORES]
     elif score_metric == ti.Score_Metric.EXAM:
         count_data = data[ti.CSV_ER_COUNTS]
-    else:
-        count_data = data
+        score_data = data[ti.CSV_ER_SCORES]
     # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
-    plot_name = f"{__clean_project_name(project_1_name)}_vs_{__clean_project_name(project_2_name)}_Plot_Counts{score_metric_string}{ratio_type_string}"
-    # First plot
-    __plot_tests_vs_students(count_data, f"{project_1_name} vs {project_2_name}", [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
-    # Get data into shape for first plot (with scores, e.g. "Accuracy")
-    if score_metric == ti.Score_Metric.PRESENTATION:
-        score_data = data[ti.CSV_PS_SCORES]
-    elif score_metric == ti.Score_Metric.EXAM:
-        score_data = data[ti.CSV_ER_SCORES]
-    else:
-        score_data = data
-    # Second plot
-    plot_name = f"{__clean_project_name(project_1_name)}_vs_{__clean_project_name(project_2_name)}_Plot_Sounts{score_metric_string}{ratio_type_string}"
-    __plot_tests_vs_students(count_data, f"{project_1_name} vs {project_2_name}", [GREEN, RED, ORANGE, BLUE, BLACK], plot_name)
+    plot_name = f"{__clean_project_name(project_1_name)}_vs_{__clean_project_name(project_2_name)}_Plot{score_metric_string}{ratio_type_string}"
+    # Plot
+    __plot_bar(count_data, score_data, f"{project_1_name} vs {project_2_name}", plot_name)
 
 
 
@@ -251,23 +250,23 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
     # Get data
     data = __get_project_data(module, csv_file_name, relative_ratios)
     # Get data into shape for plot
+    data["Project"] = data["Project"].apply(__clean_project_name)
+    data = data.groupby("Project").mean(numeric_only=True)
     if score_metric == ti.Score_Metric.PRESENTATION:
-        data = data[ti.CSV_PS_COUNTS + ti.CSV_PS_SCORES]
+        data = data[ti.CSV_PS_COUNTS+ti.CSV_PS_SCORES]
     elif score_metric == ti.Score_Metric.EXAM:
-        data = data[ti.CSV_ER_COUNTS + ti.CSV_ER_SCORES]
-    else:
-        data = data
-    data = data.mean()
+        data = data[ti.CSV_ER_COUNTS+ti.CSV_ER_SCORES]
     # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
     plot_name = f"{module_name}_Plot{score_metric_string}{ratio_type_string}"
     # Plot
-    __plot_tests_vs_students(data, module_name, [GREEN, RED, ORANGE, BLUE, BLACK, PURPLE, NEON, BROWN], plot_name)
+    __plot_lines(data, module_name, plot_name)
 
 
 
-def __plot_tests_vs_students(data : pd.DataFrame, title : str, colors : list, name : str) -> None:
+# TODO: Update Documentation
+def __plot_bar(count_data : list[pd.DataFrame], score_data : list[pd.DataFrame], title : str, name : str) -> None:
 
     """
     Plots a bar chart comparing the performance of different test cases across all students in the given data.
@@ -275,20 +274,47 @@ def __plot_tests_vs_students(data : pd.DataFrame, title : str, colors : list, na
     Args:
         data (pd.DataFrame): A Pandas DataFrame containing the data to be plotted.
         title (str): A string representing the title of the plot.
-        colors (list): A list of colors to be used for the plot.
         name(str): A string representing the name of the plot file.
     
     Returns:
         None: The function only creates and saves a plot.
     """
 
-    data.plot(kind="bar", figsize=(16, 16), rot=45, color=colors)
-    plt.title(title)
-    plt.xlabel("Test-Cases")
-    plt.ylabel("% of students")
-    plt.ylim([0, 1])
+    width = len(count_data)
+    ax = count_data.plot.bar(alpha=0.75, color=colors, edgecolor="black", figsize=(int(width*1.5+3), 8), linewidth=1, position=1, rot=45, stacked=True, width=0.3, ylabel="% of students")
+    score_data.plot.bar(alpha=0.75, ax=ax, color=colors, edgecolor="black", linewidth=1, position=0, rot=45, sharex=True, width=0.3, stacked=False)
+    # Show grid
+    plt.gca().yaxis.grid(True)
+    plt.title(title, loc="left")
+    # Move legend out of the plot
+    plt.legend(loc='center left',bbox_to_anchor=(1.0, 0.5))
+    # Center the entire plot
+    plt.xlim([-0.5, width-0.5])
+    # Get some space above and below the bars
+    plt.ylim([-0.05, 1.05])
+    # Add horizontal lines
     plt.yticks([0.1 * x for x in range(11)])
+    # Make clean
+    plt.tight_layout()
     plt.savefig(os.path.join(bookkeeping.TARGET_DIRECTORY, f"{name}.svg"), format="svg")
-    plt.savefig(os.path.join(bookkeeping.TARGET_DIRECTORY, f"{name}.png"), format="png")
+    print(colored(f"Successfully created Plot {name}", "green"))
+    plt.close()
+
+# TODO: Documentation
+def __plot_lines(data : list[pd.DataFrame], title : str, name : str) -> None:
+    width = len(data)
+    data.plot.line(color=colors, figsize=(int(width*0.5+3), 8), linewidth=3, rot=45, ylabel="% of students")
+    plt.title(title, loc="left")
+    # Move legend out of the plot
+    plt.legend(loc='center left',bbox_to_anchor=(1.0, 0.5))
+    # Center the entire plot
+    plt.xlim([-0.5, width-0.5])
+    # Get some space above and below the bars
+    plt.ylim([-0.05, 1.05])
+    # Add horizontal lines
+    plt.yticks([0.1 * x for x in range(11)])
+    # Make clean
+    plt.tight_layout()
+    plt.savefig(os.path.join(bookkeeping.TARGET_DIRECTORY, f"{name}.svg"), format="svg")
     print(colored(f"Successfully created Plot {name}", "green"))
     plt.close()
