@@ -8,13 +8,13 @@ COURSE_PREFIXES = ["GDI", "APRO", "AIT", "SAMPLE"]
 YEARS = ["2020", "2021", "2022", "2023"]
 
 SAMPLE =       [   
-                    "SAMPLE_2023_M_1_Testprogramm"
+                    "SAMPLE_2023_M_1_Test"
                     ]
 
 GDI_2022_M_1 = [
-                    "GDI_2022_M_1_A_1_Ein_erstes_Programm_und_Datentypen",
+                    "GDI_2022_M_1_A_1_Hello",
                     "GDI_2022_M_1_A_2_Temperaturberechnung",
-                    "GDI_2022_M_1_A_3_Zeichenketten_und_Variablentausch",
+                    "GDI_2022_M_1_A_3_Zeichenketten",
                     "GDI_2022_M_1_A_4_Kreisberechnung",
                     "GDI_2022_M_1_SA_1_Geldautomat",
                     "GDI_2022_M_1_SA_2_Verschluesselung"
@@ -22,63 +22,60 @@ GDI_2022_M_1 = [
 
 GDI_2022_M_2 = [
                     "GDI_2022_M_2_A_1_Berechnungsreihe",
-                    "GDI_2022_M_2_A_2_Pin_Code",
-                    "GDI_2022_M_2_SA_1_Zahlen_raten",
-                    "GDI_2022_M_2_SA_2_Notenprogramm",
+                    "GDI_2022_M_2_A_2_Pin",
+                    "GDI_2022_M_2_SA_1_Raten",
+                    "GDI_2022_M_2_SA_2_Noten",
                     "GDI_2022_M_2_SA_3_Pokern", # TODO: regrade with fixed main_exec
                     ]
 
 GDI_2022_M_3 = [
-                    "GDI_2022_M_3_A_1_Kartenspiel",
-                    "GDI_2022_M_3_A_2_Medikamenten_Simulation",
-                    "GDI_2022_M_3_SA_1_To_Do_Liste",
-                    "GDI_2022_M_3_SA_2_Such_und_Sortieralgorithmen",
-                    "GDI_2022_M_3_SA_3_1_Auswerten_von_Einzelbasen",
-                    "GDI_2022_M_3_SA_3_2_Auswerten_von_Basen_Sequenzen",
-                    "GDI_2022_M_3_SA_3_3_Auswerten_einer_Liste_von_Basen_Sequenzen",
-                    "GDI_2022_M_3_SA_3_4_Testen_einer_Hypothese_mittels_DNA_Sequenzanalyse"
+                    "GDI_2022_M_3_A_1_Karten",
+                    "GDI_2022_M_3_A_2_Medikamente",
+                    "GDI_2022_M_3_SA_1_Todo",
+                    "GDI_2022_M_3_SA_2_Such_Sort",
+                    "GDI_2022_M_3_SA_3_1_DNA_1",
+                    "GDI_2022_M_3_SA_3_2_DNA_2",
+                    "GDI_2022_M_3_SA_3_3_DNA_3",
+                    "GDI_2022_M_3_SA_3_4_DNA_4"
                     ]
 
 GDI_2022_M_4 = [
                     "GDI_2022_M_4_A_1_Lieferschein",
-                    "GDI_2022_M_4_A_2_Simulation_einer_ansteckenden_Krankheit",
+                    "GDI_2022_M_4_A_2_Pandemie",
                     "GDI_2022_M_4_SA_1_Bowling",
-                    "GDI_2022_M_4_SA_2_Erweiterungen_zur_Case_Study",
+                    "GDI_2022_M_4_SA_2_Pandemie_Erweiterung",
                     "GDI_2022_M_4_SA_3_Schere_Stein_Papier"
                     ]
 
 GDI_2022_M_5 = [
-                    "GDI_2022_M_5_A_1_Erdbebendaten", # TODO: regrade with fixed main_exec
+                    "GDI_2022_M_5_A_1_Erdbeben", # TODO: regrade with fixed main_exec
                     "GDI_2022_M_5_SA_1_Wetterstationen" # TODO: regrade with fixed main_exec
                     ]
 
 GDI_2022_M_6 = [
                     "GDI_2022_M_6_A_1_Vektoren",
-                    "GDI_2022_M_6_A_2_Matrizen_Boss_Puzzle",
-                    "GDI_2022_M_6_A_3_Waermeausbreitung_in_einem_Metallstab", # TODO: regrade with fixed main_exec
-                    "GDI_2022_M_6_A_4_Waermeausbreitung_in_einer_Platte", # TODO: regrade with fixed main_exec
-                    "GDI_2022_M_6_SA_1_Galton_Board",
+                    "GDI_2022_M_6_A_2_Matrizen",
+                    "GDI_2022_M_6_A_3_Waermestab", # TODO: regrade with fixed main_exec
+                    "GDI_2022_M_6_A_4_Waermeplatte", # TODO: regrade with fixed main_exec
+                    "GDI_2022_M_6_SA_1_Galton",
                     "GDI_2022_M_6_SA_2_Tic_Tac_Toe",
-                    "GDI_2022_M_6_SA_3_Monte_Carlo_Erweiterung_Schere_Stein_Papier"
-                    ]
-
-GDI_2022_SEMTEST = [
-                    "GDI_2022_SEMTEST_Notenprogramm",
-                    "GDI_2022_SEMTEST_Waldbrand"
+                    "GDI_2022_M_6_SA_3_Schere_Stein_Papier_Erweiterung"
                     ]
 
 GDI_2022_EXAM = [
-                    "GDI_2022_EXAM_SQL_Notenauswertung",
-                    "GDI_2022_EXAM_DNA"
+                    "GDI_2022_EXAM_DNA",
+                    "GDI_2022_EXAM_Noten",
+                    "GDI_2022_EXAM_SQL",
+                    "GDI_2022_EXAM_Waldbrand"
                     ]
 
-GDI_2022 = GDI_2022_M_1 + GDI_2022_M_2 + GDI_2022_M_3 + GDI_2022_M_4 + GDI_2022_M_5 + GDI_2022_M_6
+GDI_2022 = GDI_2022_M_1 + GDI_2022_M_2 + GDI_2022_M_3 + GDI_2022_M_4 + GDI_2022_M_5 + GDI_2022_M_6 + GDI_2022_EXAM
 GDI_2022_TRY = [project for project in GDI_2022 if "_A_" in project] + [project + "_fixed_main_exec" for project in GDI_2022 if "_A_" in project]
 GDI_2022_DO = [project for project in GDI_2022 if "_SA_" in project] + [project + "_fixed_main_exec" for project in GDI_2022 if "_SA_" in project]
 
 GDI_2021_M_1 = [
                     "GDI_2021_M_1_A_1_Temperaturberechnung",
-                    "GDI_2021_M_1_A_2_Zeichenketten_und_Variablentausch",
+                    "GDI_2021_M_1_A_2_Zeichenketten",
                     "GDI_2021_M_1_A_3_Kreisberechnung",
                     "GDI_2021_M_1_SA_1_Geldautomat",
                     "GDI_2021_M_1_SA_2_Verschluesselung"
@@ -86,48 +83,160 @@ GDI_2021_M_1 = [
 
 GDI_2021_M_2 = [
                     "GDI_2021_M_2_A_1_Berechnungsreihe",
-                    "GDI_2021_M_2_A_2_Pin_Code",
-                    "GDI_2021_M_2_SA_1_Zahlen_raten",
-                    "GDI_2021_M_2_SA_2_Notenprogramm",
+                    "GDI_2021_M_2_A_2_Pin",
+                    "GDI_2021_M_2_SA_1_Raten",
+                    "GDI_2021_M_2_SA_2_Noten",
                     "GDI_2021_M_2_SA_3_Pokern"
                     ]
 
 GDI_2021_M_3 = [
-                    "GDI_2021_M_3_A_1_Kartenspiel",
-                    "GDI_2021_M_3_A_2_Medikamenten_Simulation",
-                    "GDI_2021_M_3_SA_1_To_Do_Liste",
-                    "GDI_2021_M_3_SA_2_Such_und_Sortieralgorithmen",
+                    "GDI_2021_M_3_A_1_Karten",
+                    "GDI_2021_M_3_A_2_Medikamente",
+                    "GDI_2021_M_3_SA_1_Todo",
+                    "GDI_2021_M_3_SA_2_Such_Sort",
                     "GDI_2021_M_3_SA_3_Bowling",
-                    "GDI_2021_M_3_SA_4_1_Simulation_biologischer_Modelle_Teil_1",
-                    "GDI_2021_M_3_SA_4_2_Simulation_biologischer_Modelle_Teil_2"
+                    "GDI_2021_M_3_SA_4_1_Bio_1",
+                    "GDI_2021_M_3_SA_4_2_Bio_2"
                     ]
 
 GDI_2021_M_4 = [
                     "GDI_2021_M_4_A_1_Lieferschein",
-                    "GDI_2021_M_4_A_2_Simulation_einer_ansteckenden_Krankheit",
+                    "GDI_2021_M_4_A_2_Pandemie",
                     "GDI_2021_M_4_SA_1_Merge_Sort",
-                    "GDI_2021_M_4_SA_2_Erweiterungen_zur_Case_Study",
+                    "GDI_2021_M_4_SA_2_Pandemie_Erweiterung",
                     "GDI_2021_M_4_SA_3_Schere_Stein_Papier"
                     ]
 
 GDI_2021_M_5 = [
-                    "GDI_2021_M_5_A_1_Erdbebendaten",
+                    "GDI_2021_M_5_A_1_Erdbeben",
                     "GDI_2021_M_5_SA_1_Wetterstationen"
                     ]
 
 GDI_2021_M_6 = [
                     "GDI_2021_M_6_A_1_Vektoren",
-                    "GDI_2021_M_6_A_2_Matrizen_Boss_Puzzle",
-                    "GDI_2021_M_6_A_3_Waermeausbreitung_in_einem_Metallstab",
-                    "GDI_2021_M_6_A_4_Waermeausbreitung_in_einer_Platte",
+                    "GDI_2021_M_6_A_2_Matrizen",
+                    "GDI_2021_M_6_A_3_Waermestab",
+                    "GDI_2021_M_6_A_4_Waermeplatte",
                     "GDI_2021_M_6_SA_1_Galton_Board",
                     "GDI_2021_M_6_SA_2_Tic_Tac_Toe", 
-                    "GDI_2021_M_6_SA_3_Monte_Carlo_Erweiterung_Schere_Stein_Papier"
+                    "GDI_2021_M_6_SA_3_Schere_Stein_Papier_Erweiterung"
                 ]
 
 GDI_2021 = GDI_2021_M_1 + GDI_2021_M_2 + GDI_2021_M_3 + GDI_2021_M_4 + GDI_2021_M_5 + GDI_2021_M_6
 GDI_2021_TRY = [project for project in GDI_2021 if "_A_" in project]
 GDI_2021_DO = [project for project in GDI_2021 if "_SA_" in project]
+
+APRO_2022_M_1 = [
+                    "APRO_2022_M_1A_A_1_Temperaturberechnung", # TODO: check
+                    "APRO_2022_M_1A_A_2_Zeichenketten", # TODO: check
+                    "APRO_2022_M_1A_A_3_Kreisberechnung", # TODO: check
+                    "APRO_2022_M_1A_SA_1_Geldautomat", # TODO: check
+                    "APRO_2022_M_1A_SA_2_Verschluesselung", # TODO: check
+                    "APRO_2022_M_1B_A_1_Berechnungsreihe", # TODO: check
+                    "APRO_2022_M_1B_A_2_Pin", # TODO: check
+                    "APRO_2022_M_1B_SA_1_Raten", # TODO: check
+                    "APRO_2022_M_1B_SA_2_Noten", # TODO: check
+                    "APRO_2022_M_1B_SA_2_Pokern", # TODO: check
+
+                    ]
+
+APRO_2022_M_2 = [
+                    "APRO_2022_M_2_A_1_Karten", # TODO: check
+                    "APRO_2022_M_2_A_2_Medikamente", # TODO: check
+                    "APRO_2022_M_2_SA_1_Todo", # TODO: check
+                    "APRO_2022_M_2_SA_2_Such_Sort", # TODO: check
+                    "APRO_2022_M_2_SA_3_Bowling", # TODO: check
+                    "APRO_2022_M_2_SA_4_1_Bio_1", # TODO: check
+                    "APRO_2022_M_2_SA_4_2_Bio_2" # TODO: check
+                    ]
+
+APRO_2022_M_3 = [
+                    "APRO_2022_M_3_A_1_Lieferschein", # TODO: check
+                    "APRO_2022_M_3_A_2_Pandemie", # TODO: check
+                    "APRO_2022_M_3_SA_1_Merge_Sort", # TODO: check
+                    "APRO_2022_M_3_SA_2_Pandemie_Erweiterung", # TODO: check
+                    "APRO_2022_M_3_SA_3_Schere_Stein_Papier" # TODO: check
+                    ]
+
+APRO_2022_M_4 = [
+                    "APRO_2022_M_4_A_1_Vektoren", # TODO: check
+                    "APRO_2022_M_4_A_2_Matrizen", # TODO: check
+                    "APRO_2022_M_4_A_3_Waermestab", # TODO: check
+                    "APRO_2022_M_4_A_4_Waermeplatte", # TODO: check
+                    "APRO_2022_M_4_SA_1_Galton", # TODO: check
+                    "APRO_2022_M_4_SA_2_Tic_Tac_Toe", # TODO: check
+                    "APRO_2022_M_4_SA_3_Schere_Stein_Papier_Erweiterung" # TODO: check
+                    ]
+
+APRO_2022_M_5 = [
+                    "APRO_2022_M_5_A_1_Meerestiere", # TODO: check
+                    "APRO_2022_M_5_SA_1_Hotel", # TODO: check
+                    "APRO_2022_M_5_SA_2_Erdbeben" # TODO: check
+                    ]
+
+APRO_2022_M_6 = [
+                    "APRO_2022_M_6_SA_1_Vier_Gewinnt", # TODO: check
+                    ]
+
+APRO_2022 = APRO_2022_M_1 + APRO_2022_M_2 + APRO_2022_M_3 + APRO_2022_M_4 + APRO_2022_M_5 + APRO_2022_M_6
+APRO_2022_TRY = [project for project in APRO_2022 if "_A_" in project]
+APRO_2022_DO = [project for project in APRO_2022 if "_SA_" in project]
+
+APRO_2021_M_1 = [
+                    "APRO_2021_M_1A_A_1_Temperaturberechnung", # TODO: check
+                    "APRO_2021_M_1A_A_2_Zeichenketten", # TODO: check
+                    "APRO_2021_M_1A_A_3_Kreisberechnung", # TODO: check
+                    "APRO_2021_M_1A_SA_1_Geldautomat", # TODO: check
+                    "APRO_2021_M_1A_SA_2_Verschluesselung", # TODO: check
+                    "APRO_2021_M_1B_A_1_Berechnungsreihe", # TODO: check
+                    "APRO_2021_M_1B_A_2_Pin", # TODO: check
+                    "APRO_2021_M_1B_SA_1_Raten", # TODO: check
+                    "APRO_2021_M_1B_SA_2_Noten", # TODO: check
+                    "APRO_2021_M_1B_SA_2_Pokern", # TODO: check
+
+                    ]
+
+APRO_2021_M_2 = [
+                    "APRO_2021_M_2_A_1_Karten", # TODO: check
+                    "APRO_2021_M_2_A_2_Medikamente", # TODO: check
+                    "APRO_2021_M_2_SA_1_Bowling", # TODO: check
+                    "APRO_2021_M_2_SA_2_Such_Sort", # TODO: check
+                    "APRO_2021_M_2_SA_3_1_Bio_1", # TODO: check
+                    "APRO_2021_M_2_SA_3_2_Bio_2", # TODO: check
+                    ]
+
+APRO_2021_M_3 = [
+                    "APRO_2021_M_3_A_1_Funktionen", # TODO: check
+                    "APRO_2021_M_3_A_2_Pandemie", # TODO: check
+                    "APRO_2021_M_3_SA_1_Bubble_Sort", # TODO: check
+                    "APRO_2021_M_3_SA_2_Pandemie_Erweiterung", # TODO: check
+                    "APRO_2021_M_3_SA_3_Schere_Stein_Papier" # TODO: check
+                    ]
+
+APRO_2021_M_4 = [
+                    "APRO_2021_M_4_A_1_Vektoren", # TODO: check
+                    "APRO_2021_M_4_A_2_Matrizen", # TODO: check
+                    "APRO_2021_M_4_A_3_Waermestab", # TODO: check
+                    "APRO_2021_M_4_A_4_Waermeplatte", # TODO: check
+                    "APRO_2021_M_4_SA_1_Galton", # TODO: check
+                    "APRO_2021_M_4_SA_2_Geburtstagsparadoxon" # TODO: check
+                    ]
+
+APRO_2021_M_5 = [
+                    "APRO_2021_M_5_A_1_Meerestiere", # TODO: check
+                    "APRO_2021_M_5_SA_1_Hotel", # TODO: check
+                    "APRO_2021_M_5_SA_2_Erdbeben" # TODO: check
+                    ]
+
+APRO_2021_M_6 = [
+                    "APRO_2021_M_6_SA_1_Grundspiel", # TODO: check
+                    "APRO_2021_M_6_SA_2_Gegenspieler", # TODO: check
+                    "APRO_2021_M_6_SA_3_Kroenchenaufgabe" # TODO: check
+                    ]
+
+APRO_2021 = APRO_2021_M_1 + APRO_2021_M_2 + APRO_2021_M_3 + APRO_2021_M_4 + APRO_2021_M_5 + APRO_2021_M_6
+APRO_2021_TRY = [project for project in APRO_2021 if "_A_" in project]
+APRO_2021_DO = [project for project in APRO_2021 if "_SA_" in project]
 
 def extract_name_from_project(project):
     course_prefixes = "|".join(COURSE_PREFIXES)
