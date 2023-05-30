@@ -5,7 +5,8 @@ import test_info as ti
 
 def run_for_gdi(output_file):
     extract.setup_and_prepare_directories(clear_target_directory=False)
-    output_file = "out.csv"
+    extract.extract_projects(include=bookkeeping.GDI_2021+bookkeeping.GDI_2022, exclude=[])
+    output_file = extract.one_csv_to_rule_them_all()
     plot.clear_plots()
 
     for project in bookkeeping.GDI_2022:

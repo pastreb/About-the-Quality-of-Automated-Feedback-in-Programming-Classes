@@ -63,10 +63,10 @@ GDI_2022_M_6 = [
                     ]
 
 GDI_2022_EXAM = [
-                    "GDI_2022_EXAM_DNA",
-                    "GDI_2022_EXAM_Noten",
-                    "GDI_2022_EXAM_SQL",
-                    "GDI_2022_EXAM_Waldbrand"
+                    # "GDI_2022_EXAM_DNA", # TODO: include in __get_scores_for_export
+                    # "GDI_2022_EXAM_Noten", # TODO: include in __get_scores_for_export
+                    # "GDI_2022_EXAM_SQL", # TODO: include in __get_scores_for_export
+                    # "GDI_2022_EXAM_Waldbrand" # TODO: include in __get_scores_for_export
                     ]
 
 GDI_2022 = GDI_2022_M_1 + GDI_2022_M_2 + GDI_2022_M_3 + GDI_2022_M_4 + GDI_2022_M_5 + GDI_2022_M_6 + GDI_2022_EXAM
@@ -206,7 +206,7 @@ APRO_2021_M_2 = [
                     ]
 
 APRO_2021_M_3 = [
-                    "APRO_2021_M_3_A_1_Funktionen", # TODO: check
+                    "APRO_2021_M_3_A_1_Lieferschein", # TODO: check
                     "APRO_2021_M_3_A_2_Pandemie", # TODO: check
                     "APRO_2021_M_3_SA_1_Bubble_Sort", # TODO: check
                     "APRO_2021_M_3_SA_2_Pandemie_Erweiterung", # TODO: check
