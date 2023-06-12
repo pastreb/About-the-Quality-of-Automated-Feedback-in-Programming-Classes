@@ -117,7 +117,7 @@ GDI_2021_M_6 = [
                     "GDI_2021_M_6_A_2_Matrizen",
                     "GDI_2021_M_6_A_3_Waermestab",
                     "GDI_2021_M_6_A_4_Waermeplatte",
-                    "GDI_2021_M_6_SA_1_Galton_Board",
+                    "GDI_2021_M_6_SA_1_Galton",
                     "GDI_2021_M_6_SA_2_Tic_Tac_Toe", 
                     "GDI_2021_M_6_SA_3_Schere_Stein_Papier_Erweiterung"
                 ]
