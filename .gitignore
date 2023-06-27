@@ -1,14 +1,14 @@
 # Exclude all confidential student data:
-Data Analysis/data/raw_student_data/*
+data/raw_student_data/*
 
 # Exclude all anonymized student data for now:
-Data Analysis/data/processed_student_data/*
+data/processed_student_data/*
 
 # Include sample data:
-!Data Analysis/data/raw_student_data/SAMPLE_2023_M_1_Test/ 
-!Data Analysis/data/raw_student_data/SAMPLE_2023_Scoreboard.csv
-!Data Analysis/data/processed_student_data/SAMPLE_2023_M_1_Test/
-!Data Analysis/data/processed_student_data/sample_out.csv
+!data/raw_student_data/SAMPLE_2023_M_1_Test/ 
+!data/raw_student_data/SAMPLE_2023_Scoreboard.csv
+!data/processed_student_data/SAMPLE_2023_M_1_Test/
+!data/processed_student_data/sample_out.csv
 
 Data Analysis/venv/*
 *.pyc
