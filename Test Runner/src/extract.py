@@ -444,8 +444,8 @@ def handle_audit_file(
             output="./tmp", report_name="result", add_timestamp=False, verbosity=2
         )
         result = runner.run(suite)
-        with open("./tmp/result.log") as file_handler:
-            print(file_handler.read())
+        # with open("./tmp/result.log") as file_handler:
+        #    print(file_handler.read())
         # Cleanup
         shutil.rmtree("./tmp")
         # 0 for success, 1 for failure, 2 for error and 3 for skip
