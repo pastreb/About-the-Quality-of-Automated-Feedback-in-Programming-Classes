@@ -292,6 +292,8 @@ def __find_student_code(path_to_student_project : str) -> str:
             return ""
     return student_code[0]
 
+
+
 def handle_audit_file(path_to_main, path_to_test_cases):
     main_exec.path_to_main = path_to_main
     sys.path.append(path_to_test_cases)
@@ -359,9 +361,7 @@ def extract_project(project_name : str) -> None:
     Extracts relevant files (testcases.csv from cx_audit and main.py) and anonymizes them from the 
     given [code]expert project export (of one task) if found in `bookkeeping.SOURCE_DIRECTORY`, 
     and copies them to `bookkeeping.TARGET_DIRECTORY`.
-    
     This function also includes information about the score of the student.
-    If there is a version of the project with "fixed_main_exec" then it is included as well.
     
     Args:
         project_name (str): Name of the project to extract
@@ -440,66 +440,14 @@ def extract_project(project_name : str) -> None:
             for row in rows:
                 writer.writerow(row)
     # Print results
-    print(f"Successfully moved and renamed files from {n_students} students", end=' ')
+    print(colored(f"Successfully moved and renamed files from {n_students} students", "green"))
     # Print info on audit (test result) files
     if sum_of_scores == 0.0: 
         print(colored("No student passed any test; seems suspicious", "red"))
+    elif sum_of_scores < n_students/4:
+        print(colored(f"Average score is only {sum_of_scores/n_students}"))
     else:
         print(colored(f"Sum of Scores: {sum_of_scores}", "green"))
-
-    # Possibly also extract the audit info of a version of the project with "fixed_main_exec"
-
-    # Construct path to fixed_main_exec version
-    fixed_main_exec_source_path = os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name + "_fixed_main_exec")
-    # Prepare bookkeeping
-    n_existing_fixed_main_exec_audit_files = 0
-    # Check if the fixed_main_exec project directory exists
-    if not os.path.exists(fixed_main_exec_source_path):
-        print(colored("Did not find a fixed_main_exec version of the project", "yellow"))
-        return
-    print(f"Found a fixed_main_exec version of the project, processing {project_name}_fixed_main_exec")
-    # Traverse the fixed_main_exec project recursively
-    for root, _, _ in os.walk(fixed_main_exec_source_path):
-        # Check if folder is named "project"
-        if os.path.basename(root) != "project":
-            continue
-        # Find student code
-        student_code = __find_student_code(root)
-        if student_code == "": # no match
-            print(colored(f"Could not find student code in {root}", "red"))
-            continue
-        # Check if score is found in scores
-        anonymized_student_code = __get_gibberish_string_for_student(student_code) 
-        if anonymized_student_code not in scores:
-            print(colored(f"Could not find score of student {student_code}, so I will skip this student", "yellow"))
-            continue
-        # We are actually not interested in the main files; those are the same as in the orignial project
-        # Find and move audit file
-        src = os.path.join(fixed_main_exec_source_path, root, "cx_audit", "testcases.csv")
-        # Check if the audit file exists
-        if not os.path.isfile(src):
-            continue
-        n_existing_fixed_main_exec_audit_files += 1
-        # Get the destination path from the original project
-        dest = os.path.join(target_path, f"{anonymized_student_code}_testresults.csv") # get dest path from original project
-        # Append the test results to the exported audit file from the original project
-        # Open the source CSV file for reading and the target CSV file for writing
-        with open(src, mode='r') as fixed_main_exec_test_results:
-            with open(dest, mode='a') as test_results:
-                # Create a CSV writer for the target file
-                writer = csv.writer(test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-                # Create a CSV reader for the source file
-                reader = csv.reader(fixed_main_exec_test_results, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-                # Loop over each row in the source CSV file
-                i = 0
-                for row in reader:
-                    writer.writerow([f"Test {i+1} (fixed_main_exec)", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
-                    i += 1
-    # Check if the number of audit files in the fixed_main_exec version matches the original project
-    if n_existing_fixed_main_exec_audit_files == n_existing_audit_files:
-        print(colored("Found the same number of audit files", "green"))
-    else:
-        print(colored(f"Found a different number of audit files: {str(n_existing_fixed_main_exec_audit_files)} vs {str(n_existing_audit_files)}", "yellow"))
 
 
 
