@@ -1,11 +1,7 @@
-import sys
+import os
+from importlib.machinery import SourceFileLoader
 
-path_to_main = "/main.py"
+path_to_main = ""
 
 def main_exec():
-  sys.path.append(path_to_main)
-  # If a (patched) module is loaded, delete it
-  if 'main' in sys.modules:
-    del sys.modules["main"]
-  import main
-  sys.path.remove(path_to_main)
+  SourceFileLoader("main", os.path.join(path_to_main, "main.py")).load_module()

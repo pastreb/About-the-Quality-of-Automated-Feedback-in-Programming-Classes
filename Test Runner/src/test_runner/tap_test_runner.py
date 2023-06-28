@@ -141,7 +141,7 @@ class TapTestRunner(TextTestRunner):
             stop_time = time.process_time()
             self.time_taken = stop_time - self.start_time
 
-            result.printErrors()
+            # result.printErrors()
             # self.stream.writeln(result.separator2)
             run = result.testsRun
             # self.stream.writeln("Ran {} test{} in {}".format(run, run != 1 and "s" or "", str(self.time_taken)[:7]))

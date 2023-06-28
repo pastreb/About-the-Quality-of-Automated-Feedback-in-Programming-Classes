@@ -11,7 +11,8 @@ from termcolor import colored # for printing funny colored text
 from typing import Dict
 
 from unittest import TestLoader, TestSuite
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+from importlib.machinery import SourceFileLoader
 
 import bookkeeping
 import main_exec
@@ -146,7 +147,6 @@ def update_scoreboard_files(id_to_student_code : map) -> None:
                         else:
                             # If the username is already in the dictionary, merge the rows
                             old_row = scoreboard_data[row[name_index]]
-                            print(old_row)
                             for i in range(len(old_row)):
                                 if i != name_index and len(row[i]) != 0:
                                     if len(old_row[i]) == 0:
@@ -293,28 +293,47 @@ def __find_student_code(path_to_student_project : str) -> str:
     return student_code[0]
 
 
+def copy_main_file(src, dest):
+    try:
+        # Copy and rename main.py
+        shutil.copy(src, dest)
+    except Exception as e:
+        print(colored(f"Couldn't copy {src} to {dest}\n{type(e)}\n{e.args}\n{e}", "yellow"))
 
-def handle_audit_file(path_to_main, path_to_test_cases):
-    main_exec.path_to_main = path_to_main
-    sys.path.append(path_to_test_cases)
-    if 'test_cases' in sys.modules:
-        del sys.modules["test_cases"]
-    import test_cases
+
+
+def compare_audit_files(test_cases_new, test_cases_original):
+    original_rows = []
+    with open(test_cases_original, mode='r') as source_csv:
+        # Create a CSV reader for the source audit file
+        reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        i = 0
+        for row in reader:
+            test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
+            original_rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+            i += 1
+    new_rows = []
+    with open(test_cases_new, mode='r') as source_csv:
+        # Create a CSV reader for the source audit file
+        reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        i = 0
+        for row in reader:
+            test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
+            original_rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+            i += 1
+    for i in range(len(original_rows)):
+        if original_rows[i] != new_rows[i]:
+            print(colored(f"Different test results {original_rows} vs. {new_rows}", "red"))
+
+
+
+def handle_audit_file(path_to_main, test_cases):
     loaded_tests = TestLoader().loadTestsFromTestCase(test_cases.Tests)
     suite = TestSuite([loaded_tests])
     runner = TapTestRunner(output='./tmp', report_name="result", add_timestamp=False, verbosity=2)
     result = runner.run(suite)
-
-    with open("./tmp/result.log") as file_handler:
-        res_content = file_handler.read()
-    print("<cx:tap>")
-    print("TAP version 13")
-    print(res_content)
-    print("</cx:tap>")
-
     # Cleanup
     shutil.rmtree("./tmp")
-    sys.path.remove(path_to_test_cases)
     # Audit folder creation
     audit_folder = os.path.join(path_to_main, "cx_audit")
     if not os.path.isdir(audit_folder):
@@ -331,29 +350,31 @@ def handle_audit_file(path_to_main, path_to_test_cases):
             testcases_writer.writerow(['Test {}'.format(n+1), 'Result: {}'.format(outcome_values[test_outcomes[n].outcome])])
     test_cases_original = os.path.join(audit_folder, "testcases.csv")
     if os.path.isdir(test_cases_original): # check against existing test cases
-        original_rows = []
-        with open(test_cases_original, mode='r') as source_csv:
-            # Create a CSV reader for the source audit file
-            reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-            i = 0
-            for row in reader:
-                test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
-                original_rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
-                i += 1
-        new_rows = []
-        with open(test_cases_new, mode='r') as source_csv:
-            # Create a CSV reader for the source audit file
-            reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-            i = 0
-            for row in reader:
-                test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
-                original_rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
-                i += 1
-        for i in range(len(original_rows)):
-            if original_rows[i] != new_rows[i]:
-                print(colored(f"Different test results {original_rows} vs. {new_rows}", "red"))
-    
+        compare_audit_files(test_cases_new, test_cases_original)
     return len(result.successes) / result.testsRun
+
+
+
+def copy_audit_file(src, dest, student_scores):
+    # Read from source audit file
+    rows = []
+    with open(src, mode='r') as source_csv:
+        # Create a CSV reader for the source audit file
+        reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        i = 0
+        for row in reader:
+            test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
+            rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
+            i += 1
+    # Write to new audit file
+    with open(dest, mode='a') as target_csv:
+        # Create a CSV writer for the new audit file
+        writer = csv.writer(target_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+        writer.writerow(["Number of Tests", str(len(rows))])
+        writer.writerow(["Presentation Score", str(student_scores[0])])
+        writer.writerow(["Exam Result", str(student_scores[1])])
+        for row in rows:
+            writer.writerow(row)
 
 def extract_project(project_name : str) -> None:
 
@@ -389,6 +410,8 @@ def extract_project(project_name : str) -> None:
     # Prepare bookkeeping
     n_students = 0
     sum_of_scores = 0.0
+    threads = []
+    lock = threading.Lock()
     # Traverse the source recursively
     for root, _, _ in os.walk(source_path):
         # Check if folder is named "project"
@@ -405,47 +428,21 @@ def extract_project(project_name : str) -> None:
         if anonymized_student_code not in scores:
             print(colored(f"Could not find score of student {student_code}, so I will skip this student", "yellow"))
             continue
-        # Find and move main file
-        src = os.path.join(source_path, root, "main.py")
-        if not os.path.isfile(src):
-            print(colored(f"Could not find main.py of student {student_code }, so I will skip this student", "yellow"))
-            continue
-        dest = os.path.join(target_path, f"{anonymized_student_code}_main.py")
-        try:
-            shutil.copy(src, dest) # copy and rename main.py
-        except Exception as e:
-            print(colored(f"Couldn't copy {src} to {dest}\n{type(e)}\n{e.args}\n{e}", "yellow"))
-        # Find and "move" audit file
-        sum_of_scores += handle_audit_file(os.path.join(source_path, root), source_path)
-        src = os.path.join(os.path.join(source_path, root, "cx_audit"), "testcases_generated.csv")
-        # Read from source audit file
-        rows = []
-        with open(src, mode='r') as source_csv:
-            # Create a CSV reader for the source audit file
-            reader = csv.reader(source_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-            i = 0
-            for row in reader:
-                print("ROW: ", row)
-                test_number = f"0{i+1}" if (i+1) < 10 else f"{i+1}"
-                rows.append([f"Test {test_number}", "Success" if "success" in row[1] else "Fail" if "fail" in row[1] else "Error"])
-                i += 1
-        # Write to new audit file
-        dest = os.path.join(target_path,  f"{anonymized_student_code}_testresults.csv")
-        with open(dest, mode='a') as target_csv:
-            # Create a CSV writer for the new audit file
-            writer = csv.writer(target_csv, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-            writer.writerow(["Number of Tests", str(len(rows))])
-            writer.writerow(["Presentation Score", str(scores[anonymized_student_code][0])])
-            writer.writerow(["Exam Result", str(scores[anonymized_student_code][1])])
-            for row in rows:
-                writer.writerow(row)
+        thread = Extractor(n_students, lock, source_path, root, target_path, anonymized_student_code, scores[anonymized_student_code])
+        thread.start()
+        threads.append(thread)
+   
+    for thread in threads:
+        thread.join()
+        sum_of_scores += thread.get_result()
+
     # Print results
     print(colored(f"Successfully moved and renamed files from {n_students} students", "green"))
     # Print info on audit (test result) files
     if sum_of_scores == 0.0: 
         print(colored("No student passed any test; seems suspicious", "red"))
     elif sum_of_scores < n_students/4:
-        print(colored(f"Average score is only {sum_of_scores/n_students}"))
+        print(colored(f"Average score is only {sum_of_scores/n_students}", "yellow"))
     else:
         print(colored(f"Sum of Scores: {sum_of_scores}", "green"))
 
@@ -478,3 +475,35 @@ def extract_projects(include : list = [], exclude : list = []) -> None:
                 print(f"Processing {project_name}")
                 extract_project(project_name)
                 print()
+
+class Extractor(threading.Thread):
+    def __init__(self, threadID, lock, source_path, root, target_path, anonymized_student_code, student_scores):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.lock = lock
+        self.source_path = source_path
+        self.root = root
+        self.target_path = target_path
+        self.anonymized_student_code = anonymized_student_code
+        self.student_scores = student_scores
+        self.result = 0.0
+    
+    def run(self):
+        src = os.path.join(self.source_path, self.root, "main.py")
+        dest = os.path.join(self.target_path, f"{self.anonymized_student_code}_main.py")
+        copy_main_file(src, dest)
+
+        path_to_main = os.path.join(self.source_path, self.root)
+        path_to_test_cases = self.source_path
+        self.lock.acquire()
+        main_exec.path_to_main = path_to_main
+        test_cases = SourceFileLoader("test_cases", os.path.join(path_to_test_cases, "test_cases.py")).load_module()
+        self.result = handle_audit_file(path_to_main, test_cases)
+        self.lock.release()
+
+        src = os.path.join(self.source_path, self.root, "cx_audit", "testcases_generated.csv")
+        dest = os.path.join(self.target_path,  f"{self.anonymized_student_code}_testresults.csv")
+        copy_audit_file(src, dest, self.student_scores)
+
+    def get_result(self):
+        return self.result
