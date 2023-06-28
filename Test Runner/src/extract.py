@@ -10,11 +10,15 @@ import sys
 from termcolor import colored # for printing funny colored text
 from typing import Dict
 
-from unittest import TestLoader, TestSuite, TextTestRunner
+from unittest import TestLoader, TestSuite
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import bookkeeping
 import main_exec
 from test_runner.tap_test_runner import TapTestRunner
+
+# ACTIVATE VENV: myenv\Scripts\activate.bat
+# DEACTIVATE VENV: deactivate
 
 def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
     
@@ -53,7 +57,14 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
         os.mkdir(bookkeeping.TARGET_DIRECTORY)
     
     # Try to rename projects that are named after some eduID- or LTI-account
-    
+    id_to_student_code = rename_projects()
+
+    # Propagate changes to Scoreboard files and clean them up
+    update_scoreboard_files(id_to_student_code)
+
+
+
+def rename_projects() -> map:
     # A dictionary that maps the username to the corresponding student code
     id_to_student_code: Dict[str, str] = {}
     # Iterate through all the directories in bookkeeping.SOURCE_DIRECTORY
@@ -92,9 +103,11 @@ def setup_and_prepare_directories(clear_target_directory : bool = True) -> None:
                         print(colored(f"Successfully renamed {submission_path} to {new_submission_path}", "green"))
                     except Exception as e:
                         print(colored(f"Couldn't rename {submission_path} to {new_submission_path}\n{type(e)}\n{e.args}\n{e}", "yellow"))
+    return id_to_student_code
 
-    # Propagate changes to Scoreboard files and clean them up
 
+
+def update_scoreboard_files(id_to_student_code : map) -> None:
     # Loop over all files in the directory
     for scoreboard_file in os.listdir(bookkeeping.SOURCE_DIRECTORY):
         # Check if the file name contains "Scoreboard" and ends with ".csv"
