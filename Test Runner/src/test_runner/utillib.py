@@ -4,28 +4,32 @@ import re
 from functools import wraps
 import threading
 
-def timeout(seconds, error_message='Dieser Test hat die Zeitlimite überschritten.'):
+
+# Windows version
+def timeout(seconds, error_message="Dieser Test hat die Zeitlimite überschritten."):
     def deco(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
-            result = [None]
-            error = [None]
+            result = [None]  # Use a mutable object to store the result
 
             def target():
                 try:
                     result[0] = func(*args, **kwargs)
                 except Exception as e:
-                    error[0] = e
+                    result[0] = e
 
-            thread = threading.Thread(target=target)
-            thread.start()
-            thread.join(seconds)
+            timer = threading.Timer(seconds, target)
 
-            if thread.is_alive():
-                thread.join()  # Wait for the thread to finish (blocking)
-                raise TimeoutError(error_message + f' ({seconds} Sekunden)')
+            try:
+                timer.start()
+                timer.join()
+            except Exception as e:
+                raise TimeoutError(error_message + f" ({seconds} Sekunden)") from e
+            finally:
+                timer.cancel()
 
-            if error[0] is not None:
-                raise error[0]
+            if isinstance(result[0], Exception):
+                raise result[0]
 
             return result[0]
 
@@ -33,21 +37,21 @@ def timeout(seconds, error_message='Dieser Test hat die Zeitlimite überschritte
 
     return deco
 
-def regex_find(regex, target, inOrder=False, mode='and'):
-    
+
+def regex_find(regex, target, inOrder=False, mode="and"):
     match = False
 
     for ex in regex:
         res = re.search(ex, target)
         if res is None:
-            if mode=='or':
+            if mode == "or":
                 continue
             return False
         else:
             match = True
-    
+
         if inOrder:
             end = res.span()[1]
             target = target[end:]
-    
+
     return match

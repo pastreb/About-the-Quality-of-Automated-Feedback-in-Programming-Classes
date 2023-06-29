@@ -422,77 +422,88 @@ def read_existing_audit_file(audit_file):
                 lineterminator="\n",
             )
             for row in reader:
-                rows.append(["Original"] + row)
+                if (len(row)) != 0:
+                    rows.append(["Original"] + row)
     return rows
 
 
 def handle_audit_file(
-    path_to_main: str, all_test_cases: list, dest: str, student_scores: list
+    path_to_main: str,
+    all_test_cases: list,
+    dest: str,
+    student_scores: list,
+    project_student_info: str,
+    run_tests: bool,
 ):
     # (Possibly) create audit folder
     audit_folder = os.path.join(path_to_main, "cx_audit")
     if not os.path.isdir(audit_folder):
         os.mkdir(audit_folder)
+
     # (Possibly) read from existing audit file
     audit_file = os.path.join(audit_folder, "testcases.csv")
     rows = read_existing_audit_file(audit_file)
-    scores = []
-    for test_cases in all_test_cases:
-        loaded_tests = TestLoader().loadTestsFromTestCase(test_cases[0].Tests)
-        suite = TestSuite([loaded_tests])
-        runner = TapTestRunner(
-            output="./tmp", report_name="result", add_timestamp=False, verbosity=2
+    audit_file_exists = 0
+    if len(rows) == 0:
+        # print(colored(f"Did not find existing audit file for {project_student_info}", "yellow"))
+        audit_file_exists = 1
+
+    if run_tests:
+        threads = []
+        lock = threading.Lock()
+        for test_cases in all_test_cases:
+            thread = TestCaseRunner(
+                lock, test_cases[0], test_cases[1], path_to_main, project_student_info
+            )
+            print(
+                colored(
+                    f"About to run {test_cases[1]} on {project_student_info}", "blue"
+                )
+            )
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
+            print(
+                colored(
+                    f"Successfully executed {test_cases[1]} on {project_student_info}\n {thread.rows}",
+                    "green",
+                )
+            )
+            rows += thread.rows
+
+    # Write to new audit file
+    with open(dest, mode="a") as target_csv:
+        # Create a CSV writer for the new audit file
+        writer = csv.writer(
+            target_csv,
+            delimiter=",",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
+            lineterminator="\n",
         )
-        result = runner.run(suite)
-        # with open("./tmp/result.log") as file_handler:
-        #    print(file_handler.read())
-        # Cleanup
-        shutil.rmtree("./tmp")
-        # 0 for success, 1 for failure, 2 for error and 3 for skip
-        # example: to get outcome of test 0, type test_outcomes[0].outcome
-        test_outcomes = list(result._get_info_by_testcase().values())[0]
-        outcome_values = {0: "success", 1: "failure", 2: "error", 3: "skip"}
-        for n in range(len(test_outcomes)):
-            rows.append(
+        writer.writerow(["Presentation Score", str(student_scores[0])])
+        writer.writerow(["Exam Result", str(student_scores[1])])
+        for row in rows:
+            test_number = int(re.findall("\d", row[1])[0])
+            test_number = (
+                f"0{test_number}" if (test_number + 1) < 10 else f"{test_number}"
+            )
+            writer.writerow(
                 [
-                    test_cases[1],
-                    "Test {}".format(n + 1),
-                    "Result: {}".format(outcome_values[test_outcomes[n].outcome]),
+                    row[0],
+                    f"Test {test_number}",
+                    "Success"
+                    if "success" in row[2]
+                    else "Fail"
+                    if "fail" in row[2]
+                    else "Error",
                 ]
             )
-        scores.append(len(result.successes) / result.testsRun)
-        # Write to new audit file
-        with open(dest, mode="a") as target_csv:
-            # Create a CSV writer for the new audit file
-            writer = csv.writer(
-                target_csv,
-                delimiter=",",
-                quotechar='"',
-                quoting=csv.QUOTE_MINIMAL,
-                lineterminator="\n",
-            )
-            writer.writerow(["Presentation Score", str(student_scores[0])])
-            writer.writerow(["Exam Result", str(student_scores[1])])
-            for row in rows:
-                test_number = int(re.findall("\d", row[1])[0])
-                test_number = (
-                    f"0{test_number}" if (test_number + 1) < 10 else f"{test_number}"
-                )
-                writer.writerow(
-                    [
-                        row[0],
-                        f"Test {test_number}",
-                        "Success"
-                        if "success" in row[2]
-                        else "Fail"
-                        if "fail" in row[2]
-                        else "Error",
-                    ]
-                )
-    return scores
+    return audit_file_exists
 
 
-def extract_project(project_name: str) -> None:
+def extract_project(project_name: str, run_tests: bool) -> None:
     """
     Extracts relevant files (testcases.csv from cx_audit and main.py) and anonymizes them from the
     given [code]expert project export (of one task) if found in `bookkeeping.SOURCE_DIRECTORY`,
@@ -538,8 +549,7 @@ def extract_project(project_name: str) -> None:
             )
     # Prepare bookkeeping
     n_students = 0
-    threads = []
-    lock = threading.Lock()
+    n_existing_audit_files = 0
     # Traverse the source recursively
     for root, _, _ in os.walk(source_path):
         # Check if folder is named "project"
@@ -561,19 +571,24 @@ def extract_project(project_name: str) -> None:
                 )
             )
             continue
-        thread = Extractor(
-            lock,
-            all_test_cases,
-            source_path,
-            root,
-            target_path,
-            anonymized_student_code,
-            scores[anonymized_student_code],
+
+        path_to_main = os.path.join(source_path, root)
+        src = os.path.join(path_to_main, "main.py")
+        dest = os.path.join(target_path, f"{anonymized_student_code}_main.py")
+        copy_main_file(src, dest)
+
+        dest = os.path.join(target_path, f"{anonymized_student_code}_testresults.csv")
+        main_exec.path_to_main = (
+            path_to_main  # make sure that test cases run on correct main file
         )
-        thread.start()
-        threads.append(thread)
-    for thread in threads:
-        thread.join()
+        n_existing_audit_files += handle_audit_file(
+            path_to_main,
+            all_test_cases,
+            dest,
+            scores[anonymized_student_code],
+            f"{project_name} of {student_code}",
+            run_tests,
+        )
 
     # Print results
     print(
@@ -581,9 +596,33 @@ def extract_project(project_name: str) -> None:
             f"Successfully moved and renamed files from {n_students} students", "green"
         )
     )
+    # Print info on number of found audit (test result) files
+    if n_students * 0.95 <= n_existing_audit_files:
+        print(
+            colored(
+                f"{str(n_existing_audit_files)}/{str(n_students)} existing audit file(s)",
+                "green",
+            )
+        )  # at least 95% of audit files were already present
+    elif n_existing_audit_files >= n_students / 2:
+        print(
+            colored(
+                f"{str(n_existing_audit_files)}/{str(n_students)} existing audit file(s)",
+                "yellow",
+            )
+        )
+    else:
+        print(
+            colored(
+                f"{str(n_existing_audit_files)}/{str(n_students)} existing audit file(s)",
+                "red",
+            )
+        )
 
 
-def extract_projects(include: list = [], exclude: list = []) -> None:
+def extract_projects(
+    include: list = [], exclude: list = [], run_tests: bool = True
+) -> None:
     """
     Extracts projects from the bookkeeping.SOURCE_DIRECTORY.
 
@@ -602,53 +641,67 @@ def extract_projects(include: list = [], exclude: list = []) -> None:
                 os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name)
             ):
                 print(f"Processing {project_name}")
-                extract_project(project_name)
+                extract_project(project_name, run_tests)
                 print()
     # If include is provided, extract only the projects in include
     else:
         for project_name in include:
             if os.path.isdir(os.path.join(bookkeeping.SOURCE_DIRECTORY, project_name)):
                 print(f"Processing {project_name}")
-                extract_project(project_name)
+                extract_project(project_name, run_tests)
                 print()
 
 
-class Extractor(threading.Thread):
+class TestCaseRunner(threading.Thread):
     def __init__(
-        self,
-        lock,
-        all_test_cases: list,
-        source_path: str,
-        root: str,
-        target_path: str,
-        anonymized_student_code: str,
-        student_scores: list,
+        self, lock, test_cases, test_cases_name, path_to_main, project_student_info
     ):
         threading.Thread.__init__(self)
         self.lock = lock
-        self.all_test_cases = all_test_cases
-        self.source_path = source_path
-        self.root = root
-        self.target_path = target_path
-        self.anonymized_student_code = anonymized_student_code
-        self.student_scores = student_scores
-        self.result = []
+        self.test_cases = test_cases
+        self.test_cases_name = test_cases_name
+        self.path_to_main = path_to_main
+        self.project_student_info = project_student_info
+        self.rows = []
+        self.result = 0.0
 
     def run(self):
-        src = os.path.join(self.source_path, self.root, "main.py")
-        dest = os.path.join(self.target_path, f"{self.anonymized_student_code}_main.py")
-        copy_main_file(src, dest)
-
-        path_to_main = os.path.join(self.source_path, self.root)
-        dest = os.path.join(
-            self.target_path, f"{self.anonymized_student_code}_testresults.csv"
-        )
         self.lock.acquire()
-        main_exec.path_to_main = path_to_main
-        self.result = handle_audit_file(
-            path_to_main, self.all_test_cases, dest, self.student_scores
-        )
+        try:
+            self.rows, self.result = self.run_tests(
+                self.test_cases, self.test_cases_name
+            )
+        except Exception as e:
+            print(
+                colored(
+                    f"Encountered an Exception when running test cases {self.test_cases_name} for {self.project_student_info}:\n{type(e)}\n{e.args}\n{e}",
+                    "red",
+                )
+            )
         self.lock.release()
 
-    def get_result(self):
-        return self.result
+    def run_tests(self, test_cases: list, test_cases_name: str) -> list:
+        loaded_tests = TestLoader().loadTestsFromTestCase(test_cases.Tests)
+        suite = TestSuite([loaded_tests])
+        runner = TapTestRunner(
+            output="./tmp", report_name="result", add_timestamp=False, verbosity=2
+        )
+        result = runner.run(suite)
+        # Uncomment the following if you want to see the test results in console:
+        # with open("./tmp/result.log") as file_handler: print(file_handler.read())
+        # Cleanup
+        shutil.rmtree("./tmp")
+        # 0 for success, 1 for failure, 2 for error and 3 for skip
+        # example: to get outcome of test 0, type test_outcomes[0].outcome
+        test_outcomes = list(result._get_info_by_testcase().values())[0]
+        outcome_values = {0: "success", 1: "failure", 2: "error", 3: "skip"}
+        rows = []
+        for n in range(len(test_outcomes)):
+            rows.append(
+                [
+                    test_cases_name,
+                    "Test {}".format(n + 1),
+                    "Result: {}".format(outcome_values[test_outcomes[n].outcome]),
+                ]
+            )
+        return rows, (len(result.successes) / result.testsRun)
