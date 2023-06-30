@@ -13,6 +13,35 @@ from importlib.machinery import SourceFileLoader
 import bookkeeping
 import main_exec
 from test_runner.tap_test_runner import TapTestRunner
+from pathlib import Path
+
+
+def check_directory_exists(directory: str) -> None:
+    """
+    Check if the given directory exists. If not, raise an exception.
+
+    Args:
+        directory (str): The directory to check.
+    Raises:
+        FileNotFoundError: If the directory does not exist.
+    """
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"Directory '{directory}' does not exist.")
+
+
+def clear_directory(directory: str) -> None:
+    """
+    Clear the given directory by removing all its contents.
+
+    Args:
+        directory (str): The directory to clear.
+    Raises:
+        PermissionError: If there is an issue deleting the directory.
+    """
+    try:
+        shutil.rmtree(directory)
+    except (FileNotFoundError, PermissionError) as e:
+        raise PermissionError(f"Failed to delete directory '{directory}': {e}")
 
 
 def setup_and_prepare_directories(clear_target_directory: bool = True) -> None:
@@ -30,32 +59,22 @@ def setup_and_prepare_directories(clear_target_directory: bool = True) -> None:
 
     Args:
         clear_target_directory (bool, optional): Whether to clear the target directory if it already exists. Defaults to True.
+
+    Raises:
+        FileNotFoundError: If the source directory does not exist.
+        PermissionError: If there is an issue deleting the target directory.
     """
 
     # Activate colored print on Windows systems
     if os.name == "nt":
         os.system("color")
 
-    # Check if the source directory exists
-    if not os.path.exists(bookkeeping.SOURCE_DIRECTORY):
-        exit(
-            colored(
-                f"Source directory {bookkeeping.SOURCE_DIRECTORY} does not exist", "red"
-            )
-        )
-    # Check if the target directory exists and we need to clear it
+    check_directory_exists(bookkeeping.SOURCE_DIRECTORY)
+
     if os.path.exists(bookkeeping.TARGET_DIRECTORY) and clear_target_directory:
-        try:
-            # Remove the target directory and all its contents
-            shutil.rmtree(bookkeeping.TARGET_DIRECTORY)
-        except Exception as e:
-            exit(
-                colored(f"Failed to delete directory\n{type(e)}\n{e.args}\n{e}", "red")
-            )
-    # Check if the target directory does not exist
-    if not os.path.exists(bookkeeping.TARGET_DIRECTORY):
-        # If it does not exist, create it
-        os.mkdir(bookkeeping.TARGET_DIRECTORY)
+        clear_directory(bookkeeping.TARGET_DIRECTORY)
+
+    os.makedirs(bookkeeping.TARGET_DIRECTORY, exist_ok=True)
 
     # Try to rename projects that are named after some eduID- or LTI-account
     id_to_student_code = rename_projects()
@@ -64,7 +83,7 @@ def setup_and_prepare_directories(clear_target_directory: bool = True) -> None:
     update_scoreboard_files(id_to_student_code)
 
 
-def rename_projects() -> dict:
+def rename_projects() -> Dict[str, str]:
     """
     Renames all projects in `bookkeeping.SOURCE_DIRECTORY` that are named after some eduID- or LTI-account to the actual
     student code (if possible).
@@ -146,12 +165,12 @@ def rename_projects() -> dict:
     return id_to_student_code
 
 
-def update_scoreboard_files(id_to_student_code: dict) -> None:
+def update_scoreboard_files(id_to_student_code: Dict[str, str]) -> None:
     """
     Propagates this renaming to Scoreboard files in `bookkeeping.SOURCE_DIRECTORY` (if necessary).
 
     Args:
-        id_to_student_code (dict): A dictionary that maps usernames of eduID- or LTI-accounts to the corresponding student codes.
+        id_to_student_code (Dict[str, str]): A dictionary that maps usernames of eduID- or LTI-accounts to the corresponding student codes.
     """
 
     # Loop over all files in the directory
