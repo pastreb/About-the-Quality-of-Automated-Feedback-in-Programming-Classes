@@ -462,13 +462,15 @@ def handle_audit_file(
     # (Possibly) read from existing audit file
     audit_file = os.path.join(audit_folder, "testcases.csv")
     rows = read_existing_audit_file(audit_file)
-    audit_file_exists = 0
-    if len(rows) == 0:
-        # print(colored(f"Did not find existing audit file for {project_student_info}", "yellow"))
-        audit_file_exists = 1
+    audit_file_exists = len(rows) > 0
+    if not audit_file_exists:
+        print(
+            colored(
+                f"Did not find existing audit file for {project_student_info}", "yellow"
+            )
+        )
 
     if run_tests:
-        threads = []
         lock = threading.Lock()
         for test_cases in all_test_cases:
             thread = TestCaseRunner(
@@ -480,8 +482,6 @@ def handle_audit_file(
                 )
             )
             thread.start()
-            threads.append(thread)
-        for thread in threads:
             thread.join()
             print(
                 colored(
@@ -504,10 +504,8 @@ def handle_audit_file(
         writer.writerow(["Presentation Score", str(student_scores[0])])
         writer.writerow(["Exam Result", str(student_scores[1])])
         for row in rows:
-            test_number = int(re.findall("\d", row[1])[0])
-            test_number = (
-                f"0{test_number}" if (test_number + 1) < 10 else f"{test_number}"
-            )
+            test_number = int(re.findall("\d+", row[1])[0])
+            test_number = f"0{test_number}" if test_number < 10 else f"{test_number}"
             writer.writerow(
                 [
                     row[0],
@@ -560,10 +558,10 @@ def extract_project(project_name: str, run_tests: bool) -> None:
             all_test_cases.append(
                 [
                     SourceFileLoader(
-                        project_name,
+                        file.replace(".py", ""),
                         os.path.join(bookkeeping.TEST_CASES_DIRECTORY, file),
                     ).load_module(),
-                    project_name,
+                    file.replace(".py", ""),
                 ]
             )
     # Prepare bookkeeping
@@ -707,7 +705,8 @@ class TestCaseRunner(threading.Thread):
         )
         result = runner.run(suite)
         # Uncomment the following if you want to see the test results in console:
-        # with open("./tmp/result.log") as file_handler: print(file_handler.read())
+        # with open("./tmp/result.log") as file_handler:
+        #    print(file_handler.read())
         # Cleanup
         shutil.rmtree("./tmp")
         # 0 for success, 1 for failure, 2 for error and 3 for skip
