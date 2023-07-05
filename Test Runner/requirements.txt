@@ -1,0 +1,9 @@
+Windows
+python 3.8.12
+	python3.8 -m venv myenv
+	myenv\Scripts\activate.bat
+	pip install termcolor
+	pip install numpy
+	pip install matplotlib
+	pip install astunparse
+	pip install black # for auto-formatting

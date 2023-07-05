@@ -25,7 +25,7 @@ CSV_R_ER = "Recall (Exam Results)"
 CSV_P_ER = "Precision (Exam Results)"
 CSV_ER_SCORES = [CSV_A_ER, CSV_R_ER, CSV_P_ER]
 
-CSV_HEADER = ["Project", "Test", "Submissions", 
+CSV_HEADER = ["Project", "Test Cases", "Test", "Submissions", 
               "Successes", "Fails", CSV_ERRORS, "Skips", 
               
               CSV_TP_PS, # test successful, student strong (according to presentation score)
@@ -93,7 +93,7 @@ class TestInfo:
         Returns a list of string values that represent the test's information.
     """
 
-    def __init__(self, project : str, name : str) -> None:
+    def __init__(self, project : str, test_cases : str, name : str) -> None:
         
         """
         Initializes a new TestInfo object with the specified project and name.
@@ -108,6 +108,7 @@ class TestInfo:
 
         # Metadata
         self.project = project
+        self.test_cases = test_cases
         self.name = name
         # Results
         self.submissions, self.successes, self.fails, self.errors, self.skips = 0, 0, 0, 0, 0
@@ -182,7 +183,7 @@ class TestInfo:
             List[str]: A list of string values containing the test's information.
         """
 
-        return [self.project, self.name, self.submissions,
+        return [self.project, self.test_cases, self.name, self.submissions,
                 self.successes, self.fails, self.errors, self.skips,
                 self.t_p_p, self.f_p_p, self.t_n_p, self.f_n_p,
                 format(self.accuracy_p, '.2f'), format(self.recall_p, '.2f'), format(self.precision_p, '.2f'),
@@ -243,12 +244,8 @@ class ProjectTestInfo:
         """
 
         try:
-            self.n_test_cases = int(rows[0][1])
-            if len(rows) == self.n_test_cases+3:
-                return "Presentation" in rows[1][0] and "Exam" in rows[2][0] and all("Test" in row[0] for row in rows[3:])
-            if len(rows) == 2*self.n_test_cases+3:
-                self.n_test_cases *= 2
-                return "Presentation" in rows[1][0] and "Exam" in rows[2][0] and all("Test" in row[0] for row in rows[3:3+self.n_test_cases]) and all("fixed_main_exec" in row[0] for row in rows[3+self.n_test_cases:])
+            self.n_test_cases = len(rows)-2
+            return "Presentation" in rows[0][0] and "Exam" in rows[1][0] and all("Test" in row[1] for row in rows[3:])
         except Exception as e:
             print(colored(f"{type(e)}\n{e.args}\n{e}", "red"))
         return False
@@ -272,12 +269,12 @@ class ProjectTestInfo:
         # Setup self.test_info if this is the first submission
         if not len(self.test_info):
             for i in range(self.n_test_cases):
-                self.test_info.append(TestInfo(self.project, rows[3+i][0]))
+                self.test_info.append(TestInfo(self.project, rows[2+i][0], rows[2+i][1]))
         # Extract information from rows
-        presentation_score = float(rows[1][1])
-        exam_result = float(rows[2][1])
+        presentation_score = float(rows[0][1])
+        exam_result = float(rows[1][1])
         for i in range(self.n_test_cases):
-            self.test_info[i].add_submission(rows[3+i][1], presentation_score, exam_result)
+            self.test_info[i].add_submission(rows[2+i][2], presentation_score, exam_result)
 
     def finalize(self) -> list[list[str]]:
 

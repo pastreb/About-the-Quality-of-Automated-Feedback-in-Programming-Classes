@@ -100,16 +100,16 @@ def __read_csv(file_name : str) -> pd.DataFrame:
 
 
 
-def __get_project_data(project_names : list, csv_file_name : str, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> pd.DataFrame:
+def __get_project_data(project_names : list, test_names : list, csv_file_name : str, relative_ratios : bool = True) -> pd.DataFrame:
 
     """
     Extracts project data from a CSV file and performs some data cleaning and processing.
     
     Args:
         project_names (list): A list of project names to include in the extracted data.
+        test_names (list): A list of test names to include in the extracted data.
         csv_file_name (str): The name of the CSV file to read from.
         relative_ratios (bool, optional): Whether to convert absolute counts to relative ratios (default True).
-        include_fixed_main_exec (bool, optional): Whether to include or exclude the 'fixed_main_exec' versions of a test (default False).
     
     Returns:
         pd.DataFrame: A pandas DataFrame containing the extracted and processed project data.
@@ -117,14 +117,8 @@ def __get_project_data(project_names : list, csv_file_name : str, relative_ratio
 
     # Load the CSV file into a pandas DataFrame
     data_frame = __read_csv(csv_file_name)
-    # Filter out the 'fixed_main_exec' versions of a test if include_fixed_main_exec is False
-    if not include_fixed_main_exec:
-        data_frame = data_frame[~data_frame["Test"].str.contains("fixed_main_exec")]
-    else:
-        # Otherwise rename 'fixed_main_exec' versions
-        data_frame["Test"] = data_frame["Test"].str.replace("fixed_main_exec", "fme")
-    # Filter the DataFrame to only include the specified project names
-    data_frame = data_frame.loc[data_frame["Project"].isin(project_names)]
+    # Filter the DataFrame to only include the specified project names and test names
+    data_frame = data_frame.loc[data_frame["Project"].isin(project_names)].loc[data_frame["Test Cases"].isin(test_names)]
     # Check if the resulting DataFrame is empty
     if data_frame.empty:
         exit(colored(f"DataFrame for project(s) {project_names} is empty\n {data_frame}", "red"))
@@ -155,27 +149,26 @@ def __clean_project_name(project_name : str) -> str:
     return cleaned_project_name[0] if len(cleaned_project_name) == 1 else project_name
 
 
-def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True, include_fixed_main_exec : bool = False) -> None:
+def plot_project(project_name : str, test_names : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
 
     """
     Plots the test results of a single project.
 
     Parameters:
         project_name (str): The name of the project to plot.
+        test_names (list): The names of the test cases to plot.
         csv_file_name (str): The name of the CSV file containing the test results.
         score_metric (ti.Score_Metric): The score metric to be used for plotting. Can be one of ti.Score_Metric.PRESENTATION or ti.Score_Metric.EXAM.
         relative_ratios (bool, optional): Whether to use relative ratios or absolute counts (default True).
-        include_fixed_main_exec (bool, optional): Whether to include fixed_main_exec tests (default False).
 
     Returns:
         None: The function only creates and saves a plot.
     """
 
     # Get data
-    data = __get_project_data([project_name], csv_file_name, relative_ratios, include_fixed_main_exec)
-    if include_fixed_main_exec:
-        # Have original and fixed_main_exec versions of tests next to each other 
-        data = data.sort_values("Test")
+    data = __get_project_data([project_name], test_names, csv_file_name, relative_ratios)
+    # Have different versions of tests next to each other 
+    data = data.sort_values("Test")
     data = data.set_index("Test")
     # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
@@ -187,14 +180,13 @@ def plot_project(project_name : str, csv_file_name : str, score_metric : ti.Scor
     # Prepare plot name
     score_metric_string = "_Presentation" if score_metric == ti.Score_Metric.PRESENTATION else "_Exam" if score_metric == ti.Score_Metric.EXAM else ""
     ratio_type_string = "_Relative" if relative_ratios else "_Absolute"
-    fm_string = "_with_fixed_main_exec" if include_fixed_main_exec else ""
-    plot_name = f"{__clean_project_name(project_name)}_Plot{score_metric_string}{ratio_type_string}{fm_string}"
+    plot_name = f"{__clean_project_name(project_name)}_Plot{score_metric_string}{ratio_type_string}"
     # Plot
     __plot_bar(count_data, score_data, project_name, plot_name)
 
 
 
-def plot_projects_against_each_other(project_1_name : str, project_2_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
+def plot_projects_against_each_other(project_1_name : str, project_2_name : str, test_names : list, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
 
     """
     Plots the comparison of two projects (optimally the same project from different years) against each other based on the provided score metric, with counts and scores.
@@ -202,6 +194,7 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
     Args:
         project_1_name (str): The name of the first project to be plotted.
         project_2_name (str): The name of the second project to be plotted.
+        test_names (list): The names of the tests to be plotted.
         csv_file_name (str): The name of the CSV file containing the data to be plotted.
         score_metric (ti.Score_Metric): The score metric to be used for plotting. Can be one of ti.Score_Metric.PRESENTATION or ti.Score_Metric.EXAM.
         relative_ratios (bool, optional): Whether to plot relative or absolute ratios (default True).
@@ -211,7 +204,7 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
     """
 
     # Get data
-    data = __get_project_data([project_1_name, project_2_name], csv_file_name, relative_ratios)
+    data = __get_project_data([project_1_name, project_2_name], test_names, csv_file_name, relative_ratios)
     data = data.sort_values("Test")
     data["Project"] = data["Project"].apply(__clean_project_name)
     data = data.set_index(["Project", "Test"])
@@ -231,7 +224,7 @@ def plot_projects_against_each_other(project_1_name : str, project_2_name : str,
 
 
 
-def plot_module(module : list, module_name : str, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
+def plot_module(module : list, module_name : str, test_names : list, csv_file_name : str, score_metric : ti.Score_Metric, relative_ratios : bool = True) -> None:
 
     """
     Plots the average scores for the projects in a given module.
@@ -239,6 +232,7 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
     Args:
         module (list): A list of project names within the module to be plotted.
         module_name (str): A string containing the name of the module to be plotted.
+        test_names (list): The names of the test cases to be plotted.
         csv_file_name (str): A string containing the name of the CSV file containing the data.
         score_metric (ti.Score_Metric): The score metric to be used for plotting. Can be one of ti.Score_Metric.PRESENTATION or ti.Score_Metric.EXAM.
         relative_ratios (bool): A boolean indicating whether to plot relative ratios or absolute values (default True).
@@ -248,7 +242,7 @@ def plot_module(module : list, module_name : str, csv_file_name : str, score_met
     """
 
     # Get data
-    data = __get_project_data(module, csv_file_name, relative_ratios)
+    data = __get_project_data(module, test_names, csv_file_name, relative_ratios)
     # Get data into shape for plot
     data["Project"] = data["Project"].apply(__clean_project_name)
     data = data.groupby("Project").mean(numeric_only=True)

@@ -1,8 +1,8 @@
 import os
 import re
 
-SOURCE_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "data", "raw_student_data")
-TARGET_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "data", "processed_student_data")
+SOURCE_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw_student_data")
+TARGET_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed_student_data")
 
 COURSE_PREFIXES = ["GDI", "APRO", "AIT", "SAMPLE"]
 YEARS = ["2020", "2021", "2022", "2023"]
