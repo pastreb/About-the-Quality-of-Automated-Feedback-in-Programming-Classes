@@ -55,3 +55,21 @@ def regex_find(regex, target, inOrder=False, mode="and"):
             target = target[end:]
 
     return match
+
+
+# Find minimum number operations to convert s1 to s2
+def find_edit_distance(s1, s2):
+    n = len(s1)
+    m = len(s2)
+    prev = [j for j in range(m + 1)]
+    curr = [0] * (m + 1)
+    for i in range(1, n + 1):
+        curr[0] = i
+        for j in range(1, m + 1):
+            if s1[i - 1] == s2[j - 1]:
+                curr[j] = prev[j - 1]
+            else:
+                mn = min(1 + prev[j], 1 + curr[j - 1])
+                curr[j] = min(mn, 1 + prev[j - 1])
+        prev = curr.copy()
+    return prev[m]
