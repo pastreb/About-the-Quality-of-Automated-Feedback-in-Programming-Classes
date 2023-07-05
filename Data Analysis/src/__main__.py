@@ -58,4 +58,5 @@ def sample():
 
 if __name__ == '__main__':
     # sample()
+    collect.setup_and_prepare_directories()
     run_for_gdi()
