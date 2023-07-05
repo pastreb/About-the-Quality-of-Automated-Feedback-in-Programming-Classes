@@ -14,5 +14,5 @@ def sample():
 
 
 if __name__ == "__main__":
-    run_for_gdi()
-    # PROBLEMATIC: GDI_2022_M_2_A_2_Pin, GDI_2022_M_4_A_1_Lieferschein
+    extract.setup_and_prepare_directories(clear_target_directory=False)
+    extract.extract_projects(include=bookkeeping.CHOSEN, exclude=[], run_tests=True)
