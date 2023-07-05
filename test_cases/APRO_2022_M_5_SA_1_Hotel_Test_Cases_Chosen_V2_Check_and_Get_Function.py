@@ -8,19 +8,18 @@ import main_exec
 import test_runner.utillib as util
 from test_runner.tap_test_runner import Testcase
 from test_runner.utillib import find_edit_distance
-from inspect import signature, getmembers, ismethod
+from inspect import signature, getmembers, ismethod, isclass
 
 
 @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
 class Tests(unittest.TestCase):
+
     def check_and_get_function(self, source, name, expected_n_params):
         functions = [function[0] for function in getmembers(source, ismethod)]
         for function in functions:
             if find_edit_distance(name, function) <= abs(len(name) - len(function)) + 1:
                 n_params = len(signature(getattr(source, function)).parameters)
-                assert (
-                    n_params == expected_n_params
-                ), f"Die Funktion {function} soll {expected_n_params} Parameter entgegennehmen, aktuell erwartet sie aber {n_params} Parameter"
+                assert n_params == expected_n_params, f"Die Funktion {function} soll {expected_n_params} Parameter entgegennehmen, aktuell erwartet sie aber {n_params} Parameter"
                 return getattr(source, function)
         assert False, f"Keine Funktion {name} gefunden."
 
