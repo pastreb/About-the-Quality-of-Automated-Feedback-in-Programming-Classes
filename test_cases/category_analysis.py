@@ -75,6 +75,7 @@ def read_test_cases(filename):
 
     test_cases = {} # maps string representations to test case objects collecting categories
     categories = {} # maps categories to counts
+    assignments = set()
 
     with open(filename, 'r') as file:
         reader = csv.reader(file, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator="\n",)
@@ -93,6 +94,10 @@ def read_test_cases(filename):
                 categories[category] += 1
             else:
                 categories[category] = 1
+
+            assignments.add(f"{test_case.course} {test_case.project_name}")
+        
+        print(f"Scanned {len(assignments)} assignments")
     
     return test_cases, categories
 
