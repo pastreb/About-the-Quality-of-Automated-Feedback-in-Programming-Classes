@@ -15,12 +15,12 @@ def export_functions_and_classes():
         for node in ast.iter_child_nodes(tree):
             if isinstance(node, ast.FunctionDef) or isinstance(node, ast.ClassDef):
                 relevant_parts.append(node)
-        with open(os.path.join(path_to_main, "temp_main.py"), "w") as file:
-            for part in relevant_parts:
-                file.write(astunparse.unparse(part))
-        return SourceFileLoader(
-            "temp_main", os.path.join(path_to_main, "temp_main.py")
-        ).load_module()
+    with open(os.path.join(path_to_main, "temp_main.py"), "w") as file:
+        for part in relevant_parts:
+            file.write(astunparse.unparse(part))
+    return SourceFileLoader(
+        "temp_main", os.path.join(path_to_main, "temp_main.py")
+    ).load_module()
 
 
 def main_exec():
