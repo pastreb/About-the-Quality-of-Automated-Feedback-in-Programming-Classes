@@ -136,8 +136,7 @@ APRO_2022_M_1 = [
                     "APRO_2022_M_1B_A_2_Pin", # TODO: check
                     "APRO_2022_M_1B_SA_1_Raten", # TODO: check
                     "APRO_2022_M_1B_SA_2_Noten", # TODO: check
-                    "APRO_2022_M_1B_SA_2_Pokern", # TODO: check
-
+                    "APRO_2022_M_1B_SA_2_Pokern" # TODO: check
                     ]
 
 APRO_2022_M_2 = [
