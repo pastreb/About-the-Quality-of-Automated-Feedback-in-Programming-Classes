@@ -167,8 +167,13 @@ def plot_project(project_name : str, test_names : str, csv_file_name : str, scor
 
     # Get data
     data = __get_project_data([project_name], test_names, csv_file_name, relative_ratios)
-    # Have different versions of tests next to each other 
+    # Have different versions of tests next to each other
     data = data.sort_values("Test")
+    # Include n in labels
+    labels = []
+    for element in data.values:
+        labels.append(f"{element[list(data.columns.values).index('Test')]}\n(n={element[list(data.columns.values).index('Submissions')]})")
+    data["Test"] = labels
     data = data.set_index("Test")
     # Get data into shape for plot
     if score_metric == ti.Score_Metric.PRESENTATION:
@@ -276,7 +281,7 @@ def __plot_bar(count_data : list[pd.DataFrame], score_data : list[pd.DataFrame],
 
     width = len(count_data)
     ax = count_data.plot.bar(alpha=0.75, color=colors, edgecolor="black", figsize=(int(width*1.5+3), 8), linewidth=1, position=1, rot=45, stacked=True, width=0.3, ylabel="% of students")
-    score_data.plot.bar(alpha=0.75, ax=ax, color=colors, edgecolor="black", linewidth=1, position=0, rot=45, sharex=True, width=0.3, stacked=False)
+    score_data.plot.bar(alpha=0.75, ax=ax, color=colors, edgecolor="black", linewidth=1, position=0, rot=0, sharex=True, width=0.3, stacked=False)
     # Show grid
     plt.gca().yaxis.grid(True)
     plt.title(title, loc="left")

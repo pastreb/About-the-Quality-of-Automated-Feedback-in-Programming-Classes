@@ -53,10 +53,9 @@ def run_for_gdi():
 def sample():
     output_file = collect.one_csv_to_rule_them_all()
     plot.clear_plots()
-    plot.plot_project(bookkeeping.SAMPLE[0], output_file, ti.Score_Metric.PRESENTATION)
-
+    plot.plot_project(bookkeeping.SAMPLE[0], ["Original"], output_file, ti.Score_Metric.PRESENTATION)
 
 if __name__ == '__main__':
-    # sample()
     collect.setup_and_prepare_directories()
-    run_for_gdi()
+    sample()
+    # run_for_gdi()

@@ -704,11 +704,6 @@ class TestCaseRunner(threading.Thread):
             output="./tmp", report_name="result", add_timestamp=False, verbosity=2
         )
         result = runner.run(suite)
-        # Uncomment the following if you want to see the test results in console:
-        # with open("./tmp/result.log") as file_handler:
-        #    print(file_handler.read())
-        # Cleanup
-        shutil.rmtree("./tmp")
         # 0 for success, 1 for failure, 2 for error and 3 for skip
         # example: to get outcome of test 0, type test_outcomes[0].outcome
         test_outcomes = list(result._get_info_by_testcase().values())[0]
@@ -722,4 +717,10 @@ class TestCaseRunner(threading.Thread):
                     "Result: {}".format(outcome_values[test_outcomes[n].outcome]),
                 ]
             )
+        # Uncomment the following if you want to see the test results in console:
+        if "V4" in rows[0][0] and "error" in rows[0][2]:
+            with open("./tmp/result.log") as file_handler:
+                print(file_handler.read())
+        # Cleanup
+        shutil.rmtree("./tmp")
         return rows, (len(result.successes) / result.testsRun)
