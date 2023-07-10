@@ -76,6 +76,10 @@ def read_test_cases(filename):
     test_cases = {} # maps string representations to test case objects collecting categories
     categories = {} # maps categories to counts
 
+    n_apro_2021 = 0
+    n_apro_2022 = 0
+    n_gdi_2021 = 0
+    n_gdi_2022 = 0
     with open(filename, 'r') as file:
         reader = csv.reader(file, delimiter=";", quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator="\n",)
         header = next(reader)
@@ -86,6 +90,14 @@ def read_test_cases(filename):
             test_case = Testcase(row[2], row[3], row[4], row[5], row[6])
 
             if str(test_case) not in test_cases: # did not yet encounter this test case
+                if "APRO" in test_case.course and "2021" in test_case.course:
+                    n_apro_2021 += 1
+                if "APRO" in test_case.course and "2022" in test_case.course:
+                    n_apro_2022 += 1
+                if "GDI" in test_case.course and "2021" in test_case.course:
+                    n_gdi_2021 += 1
+                if "GDI" in test_case.course and "2022" in test_case.course:
+                    n_gdi_2022 += 1
                 test_cases[str(test_case)] = test_case
             test_cases[str(test_case)].add_category(category)
 
@@ -93,7 +105,10 @@ def read_test_cases(filename):
                 categories[category] += 1
             else:
                 categories[category] = 1
-    
+    print(f"n_apro_2021: {n_apro_2021}")
+    print(f"n_apro_2022: {n_apro_2022}")
+    print(f"n_gdi_2021: {n_gdi_2021}")
+    print(f"n_gdi_2022: {n_gdi_2022}")
     return test_cases, categories
 
 def find_representative_test_cases(test_cases, categories):
