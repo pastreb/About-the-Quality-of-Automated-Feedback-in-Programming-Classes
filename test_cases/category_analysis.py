@@ -75,6 +75,7 @@ def read_test_cases(filename):
 
     test_cases = {} # maps string representations to test case objects collecting categories
     categories = {} # maps categories to counts
+    assignments = set()
 
     n_apro_2021 = 0
     n_apro_2022 = 0
@@ -105,10 +106,16 @@ def read_test_cases(filename):
                 categories[category] += 1
             else:
                 categories[category] = 1
+
+            assignments.add(f"{test_case.course} {test_case.project_name}")
+        
+        print(f"Scanned {len(assignments)} assignments")
+    
     print(f"n_apro_2021: {n_apro_2021}")
     print(f"n_apro_2022: {n_apro_2022}")
     print(f"n_gdi_2021: {n_gdi_2021}")
     print(f"n_gdi_2022: {n_gdi_2022}")
+    
     return test_cases, categories
 
 def find_representative_test_cases(test_cases, categories):
