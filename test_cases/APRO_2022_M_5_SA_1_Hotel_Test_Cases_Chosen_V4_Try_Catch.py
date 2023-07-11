@@ -8,7 +8,7 @@ import main_exec
 import test_runner.utillib as util
 from test_runner.tap_test_runner import Testcase
 from test_runner.utillib import find_edit_distance
-from inspect import signature, getmembers, ismethod, isclass
+from inspect import signature, getmembers, ismethod
 
 
 @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
@@ -33,7 +33,7 @@ class Tests(unittest.TestCase):
             try:
                 main = main_exec.export_functions_and_classes()
             except Exception as e:
-                assert False, "Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
             if "Hotel" not in dir(main):
                 assert False, "Keine Klasse Hotel gefunden."
             n_constructor_params = len(signature(main.Hotel.__init__).parameters)
@@ -41,13 +41,13 @@ class Tests(unittest.TestCase):
             try:
                 test_hotel = main.Hotel("MyHotel", 5, 2, 237, 3)
             except Exception as e:
-                assert False, "Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
             print_info = self.check_and_get_function(test_hotel, "print_info", 0)
             try:
                 print_info()
             except Exception as e:
-                assert False, "Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
-            res = Testcase(r"MyHotel *\*\*\*\*", mock_stdout)
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
+            res = Testcase(r"MyHotel \*\*\*\*\*", mock_stdout)
             assert res.result is not None, res.get_errormessage()
             res = Testcase(r"3 von 474 belegt", mock_stdout)
             assert res.result is not None, res.get_errormessage()

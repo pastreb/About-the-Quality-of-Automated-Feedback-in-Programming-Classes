@@ -21,5 +21,5 @@ class Tests(unittest.TestCase):
             main = main_exec.main_exec()
             test_hotel = main.Hotel("Overlook-Hotel", 5, 2, 237, 3)
             test_hotel.print_info()
-            res = Testcase(r"Overlook-Hotel *\*\*\*\* 3 von 474 belegt", mock_stdout)
+            res = Testcase(r"Overlook-Hotel \*\*\*\*\* 3 von 474 belegt", mock_stdout)
             assert res.result is not None, res.get_errormessage()

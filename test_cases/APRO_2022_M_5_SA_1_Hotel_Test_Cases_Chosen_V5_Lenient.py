@@ -30,11 +30,24 @@ class Tests(unittest.TestCase):
         with unittest.mock.patch(
             "builtins.input", side_effect=["200", "20"] + ["0" * 100]
         ) as mocked_input:
-            main = main_exec.export_functions_and_classes()
-            test_hotel = main.Hotel("MyHotel", 5, 2, 237, 3)
+            try:
+                main = main_exec.export_functions_and_classes()
+            except Exception as e:
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
+            if "Hotel" not in dir(main):
+                assert False, "Keine Klasse Hotel gefunden."
+            n_constructor_params = len(signature(main.Hotel.__init__).parameters)
+            assert n_constructor_params == 6, f"Der Konstruktor der Klasse Hotel soll 6 Parameter entgegennehmen, aktuell erwartet sie aber {n_constructor_params} Parameter"
+            try:
+                test_hotel = main.Hotel("MyHotel", 5, 2, 237, 3)
+            except Exception as e:
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
             print_info = self.check_and_get_function(test_hotel, "print_info", 0)
-            print_info()
-            res = Testcase(r"MyHotel \*\*\*\*\*", mock_stdout)
+            try:
+                print_info()
+            except Exception as e:
+                assert False, f"Es scheint allgemeine Probleme im Code zu geben: {e}\n {e.args}"
+            res = Testcase(r"MyHotel\s*(\*\s*\*\s*\*\s*\*\s*\*|5(\s*Sterne)?)", mock_stdout, "MyHotel *****")
             assert res.result is not None, res.get_errormessage()
-            res = Testcase(r"3 von 474 belegt", mock_stdout)
+            res = Testcase(r"3\s*von\s*474\s*belegt", mock_stdout, "3 von 474 belegt")
             assert res.result is not None, res.get_errormessage()

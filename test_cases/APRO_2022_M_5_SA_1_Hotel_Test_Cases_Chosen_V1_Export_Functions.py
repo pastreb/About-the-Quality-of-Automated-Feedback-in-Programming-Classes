@@ -7,8 +7,6 @@ from unittest.mock import Mock
 import main_exec
 import test_runner.utillib as util
 from test_runner.tap_test_runner import Testcase
-from test_runner.utillib import find_edit_distance
-from inspect import signature, getmembers, ismethod
 
 
 @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
@@ -26,7 +24,7 @@ class Tests(unittest.TestCase):
             test_hotel = main.Hotel("MyHotel", 5, 2, 237, 3)
             if "print_info" in dir(test_hotel):
                 test_hotel.print_info()
-            res = Testcase(r"MyHotel *\*\*\*\*", mock_stdout)
+            res = Testcase(r"MyHotel \*\*\*\*\*", mock_stdout)
             assert res.result is not None, res.get_errormessage()
             res = Testcase(r"3 von 474 belegt", mock_stdout)
             assert res.result is not None, res.get_errormessage()
