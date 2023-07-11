@@ -178,7 +178,7 @@ def find_representative_test_cases(test_cases, categories):
         if working_set_of_chosen_test_cases and len(chosen_test_cases) <= 10 and all(any(project_to_be_included in test_case for test_case in chosen_test_cases) for project_to_be_included in projects_to_be_included):    
             print(f"\nChosen Testcases ({len(chosen_test_cases)}):")
             for test_case in sorted(chosen_test_cases.keys()):
-                print(f"{str(test_case)} ({test_case_categories[test_case]})")
+                print(f"{str(test_case)}\n   (Relevant Categories: {test_case_categories[test_case]})\n   (Overall Categories: {test_cases[test_case].get_categories()})")
             print()
             break
 
