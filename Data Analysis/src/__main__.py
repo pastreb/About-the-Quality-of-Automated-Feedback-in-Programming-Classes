@@ -54,7 +54,7 @@ def run_for_chosen(output_file=""):
     collect.setup_and_prepare_directories()
     if output_file == "":
         output_file = collect.one_csv_to_rule_them_all()
-    plot.plot_project("APRO_2022_M_5_SA_1_Hotel", ["APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_ChatGPT", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V0_Longer_Side_Effect",
+    plot.plot_project("APRO_2022_M_5_SA_1_Hotel", ["Original", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_ChatGPT", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V0_Longer_Side_Effect",
                                                    "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V1_Export_Functions", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V2_Check_and_Get_Function", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V3_Check_Class", 
                                                    "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V4_Try_Catch", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V5_Lenient"], output_file, ti.Score_Metric.PRESENTATION)
 
@@ -67,4 +67,4 @@ def sample():
 
 if __name__ == '__main__':
     # sample()
-    run_for_chosen() # os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv")
+    run_for_chosen(os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv"))

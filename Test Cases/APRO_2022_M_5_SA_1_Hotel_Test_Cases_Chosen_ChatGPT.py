@@ -14,9 +14,9 @@ class Tests(unittest.TestCase):
     @util.timeout(0.5)
     def test_a(self):
         """Teste, ob die print_info Methode vorhanden ist.
-        Hint: Die print_info Methode muss mit print die Attribute ausgeben."""
+        Hint: Die print_info Methode muss die Attribute ausgeben."""
         with unittest.mock.patch(
-            "builtins.input", side_effect=["200", "20"] + ["0" * 100]
+            "builtins.input", side_effect=["200", "20"]
         ) as mocked_input:
             main = main_exec.main_exec()
             hotel = main.Hotel("Sample Hotel", 4, 5, 10, 3)

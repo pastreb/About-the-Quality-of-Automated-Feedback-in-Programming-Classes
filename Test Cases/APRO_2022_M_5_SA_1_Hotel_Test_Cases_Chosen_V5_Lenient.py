@@ -26,7 +26,7 @@ class Tests(unittest.TestCase):
     @util.timeout(0.5)
     def test_a(self, mock_stdout):
         """Teste, ob die print_info Methode vorhanden ist.
-        Hint: Die print_info Methode muss mit print die Attribute ausgeben."""
+        Hint: Die print_info Methode muss die Attribute ausgeben."""
         with unittest.mock.patch(
             "builtins.input", side_effect=["200", "20"] + ["0" * 100]
         ) as mocked_input:
