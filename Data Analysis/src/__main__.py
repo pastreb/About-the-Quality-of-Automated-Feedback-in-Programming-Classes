@@ -67,4 +67,4 @@ def sample():
 
 if __name__ == '__main__':
     # sample()
-    run_for_chosen(os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv"))
+    run_for_chosen()
