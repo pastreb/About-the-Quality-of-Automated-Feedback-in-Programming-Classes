@@ -2,8 +2,10 @@ import bookkeeping
 import collect
 import plot
 import test_info as ti
+import os
 
 def run_for_gdi():
+    collect.setup_and_prepare_directories()
     output_file = collect.one_csv_to_rule_them_all()
     plot.clear_plots()
 
@@ -48,14 +50,21 @@ def run_for_gdi():
     plot.plot_module(bookkeeping.GDI_2021, "GDI_2021", ["Original"], output_file, ti.Score_Metric.PRESENTATION)
     plot.plot_module(bookkeeping.GDI_2021_DO, "GDI_2021_DO", ["Original"], output_file, ti.Score_Metric.PRESENTATION)
 
-
+def run_for_chosen(output_file=""):
+    collect.setup_and_prepare_directories()
+    if output_file == "":
+        output_file = collect.one_csv_to_rule_them_all()
+    plot.plot_project("APRO_2022_M_5_SA_1_Hotel", ["APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_ChatGPT", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V0_Longer_Side_Effect",
+                                                   "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V1_Export_Functions", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V2_Check_and_Get_Function", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V3_Check_Class", 
+                                                   "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V4_Try_Catch", "APRO_2022_M_5_SA_1_Hotel_Test_Cases_Chosen_V5_Lenient"], output_file, ti.Score_Metric.PRESENTATION)
 
 def sample():
+    collect.setup_and_prepare_directories()
     output_file = collect.one_csv_to_rule_them_all()
     plot.clear_plots()
     plot.plot_project(bookkeeping.SAMPLE[0], ["Original"], output_file, ti.Score_Metric.PRESENTATION)
+    
 
 if __name__ == '__main__':
-    collect.setup_and_prepare_directories()
-    sample()
-    # run_for_gdi()
+    # sample()
+    run_for_chosen() # os.path.join(bookkeeping.TARGET_DIRECTORY, f"out.csv")

@@ -66,16 +66,25 @@ def one_csv_to_rule_them_all() -> str:
     for project in os.listdir(bookkeeping.TARGET_DIRECTORY):
         project_path = os.path.join(bookkeeping.TARGET_DIRECTORY, project)
         # Check if actually is a project
-        if not os.path.isdir(project_path):
+        if not project.endswith(".zip"):
+            continue
+        project = project.replace(".zip", "")
+        new_project_path = os.path.join(bookkeeping.TARGET_DIRECTORY, project)
+        if os.path.exists(new_project_path):
+            print(colored("Path already exists, which should not have happened: {new_project_path}", "red"))
+            continue
+        shutil.unpack_archive(project_path, new_project_path,"zip")
+        if not os.path.isdir(new_project_path):
+            shutil.rmtree(new_project_path)
             continue
         project_test_info = test_info.ProjectTestInfo(project)
         # Loop through all files in the projects
-        for file in os.listdir(project_path):
+        for file in os.listdir(new_project_path):
             # Check if the file is a CSV file
             if not file.endswith(".csv"):
                 continue
             # Define the path to the CSV file
-            file_path = os.path.join(project_path, file)
+            file_path = os.path.join(new_project_path, file)
             rows = []
             # Open the CSV file and read the rows
             with open(file_path, "r") as csv_file:
@@ -84,6 +93,7 @@ def one_csv_to_rule_them_all() -> str:
                     rows.append(row)
             # Add the rows to the project test info
             project_test_info.add_submission(rows)
+        shutil.rmtree(new_project_path)
         # Finalize the project test info and add the rows to the all_rows list
         for row in project_test_info.finalize():
             all_rows.append(row)

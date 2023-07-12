@@ -542,7 +542,7 @@ def extract_project(project_name: str, run_tests: bool) -> None:
         print(colored(f"Could not find project export at {source_path}", "red"))
         return
     # Check if project is already exported
-    if os.path.exists(target_path):
+    if os.path.exists(target_path) or os.path.exists(f"{target_path}.zip"):
         print(colored("Project already exported, consider deleting it", "yellow"))
         return
     # Create target directory if it doesn't exist
@@ -606,6 +606,10 @@ def extract_project(project_name: str, run_tests: bool) -> None:
             f"{project_name} of {student_code}",
             run_tests,
         )
+
+    # Zip files
+    shutil.make_archive(target_path, "zip", target_path)
+    shutil.rmtree(target_path)
 
     # Print results
     print(
@@ -718,9 +722,8 @@ class TestCaseRunner(threading.Thread):
                 ]
             )
         # Uncomment the following if you want to see the test results in console:
-        if "V4" in rows[0][0] and "error" in rows[0][2]:
-            with open("./tmp/result.log") as file_handler:
-                print(file_handler.read())
+        # with open("./tmp/result.log") as file_handler:
+        #     print(file_handler.read())
         # Cleanup
         shutil.rmtree("./tmp")
         return rows, (len(result.successes) / result.testsRun)

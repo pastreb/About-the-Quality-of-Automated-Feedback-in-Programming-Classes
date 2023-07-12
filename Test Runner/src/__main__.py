@@ -19,4 +19,5 @@ def sample():
 
 
 if __name__ == "__main__":
-    sample()
+    # sample()
+    run_for_chosen()

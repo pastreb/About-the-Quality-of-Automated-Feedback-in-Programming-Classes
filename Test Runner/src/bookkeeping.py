@@ -17,7 +17,7 @@ TARGET_DIRECTORY = os.path.join(
     "processed_student_data",
 )
 TEST_CASES_DIRECTORY = os.path.join(
-    os.path.dirname(os.path.realpath(sys.argv[0])), "..", "..", "test_cases"
+    os.path.dirname(os.path.realpath(sys.argv[0])), "..", "..", "Test Cases"
 )
 # os.path.dirname(os.path.realpath(sys.argv[0])) is an alternative approach for obtaining the directory path of the current script
 
