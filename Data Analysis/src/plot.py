@@ -89,7 +89,7 @@ def __read_csv(file_name : str) -> pd.DataFrame:
     if not os.path.isfile(csv_path):
         exit(colored(f"Could not find {csv_path} for plotting", "red"))
     # Load the CSV file into a pandas DataFrame
-    data_frame = pd.read_csv(csv_path)
+    data_frame = pd.read_csv(csv_path, delimiter=",|;", engine='python')
     # Validate the header
     header = data_frame.columns.values
     if len(header) != len(ti.CSV_HEADER) or False in [(header[i] == ti.CSV_HEADER[i]) for i in range(len(header))]:
